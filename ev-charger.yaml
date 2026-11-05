@@ -1,0 +1,390 @@
+esphome:
+  name: ev-charger
+  friendly_name: EV Charger Controller
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "EV-Charger Fallback"
+    password: !secret fallback_password
+
+# ── DISPLAY ──────────────────────────────────────────────────────────
+i2c:
+  sda: GPIO22
+  scl: GPIO23
+  scan: true
+
+display:
+  - platform: lcd_pcf8574
+    dimensions: 16x2
+    address: 0x27
+    update_interval: 300ms
+    user_characters:
+        # NOTE: position 0 is accessed as \x08 in lambdas, NOT \x00
+        # ESPHome maps position 0 to \x08 to avoid the C null terminator issue
+      - position: 0
+        data: [0x0A, 0x0A, 0x1F, 0x11, 0x11, 0x0E, 0x04, 0x04]  # \x08 plug
+      - position: 1
+        data: [0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x0A, 0x11]  # \x01 chg1
+      - position: 2
+        data: [0x00, 0x00, 0x04, 0x0A, 0x11, 0x04, 0x0A, 0x11]  # \x02 chg2
+      - position: 3
+        data: [0x04, 0x0A, 0x11, 0x04, 0x0A, 0x11, 0x00, 0x00]  # \x01 chg3
+      - position: 4
+        data: [0x04, 0x0A, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00]  # \x01 chg4
+      - position: 5
+        data: [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]  # \x05 chg5
+      - position: 6
+        data: [0x0E, 0x11, 0x11, 0x1F, 0x1B, 0x1B, 0x1F, 0x00]  # \x06 lock
+      - position: 7
+        data: [0x00, 0x00, 0x01, 0x03, 0x16, 0x1C, 0x08, 0x00]  # \x07 checkmark
+
+    lambda: |-
+      uint32_t phase = (millis() / 300) % 5;
+
+      // Cycle through chg1-chg5 (positions 1-5 = \x01-\x05)
+      const char* chg;
+      switch(phase) {
+        case 0: chg = "\x01"; break;  // chg1
+        case 1: chg = "\x02"; break;  // chg2
+        case 2: chg = "\x03"; break;  // chg3
+        case 3: chg = "\x04"; break;  // chg4
+        //case 4: chg = "\x05"; break;  // chg5
+        default: chg = "\x01"; break;
+      }
+
+      // Interlock fault — highest priority
+      if (id(outlet1_current).state > 0.5 &&
+          id(outlet2_current).state > 0.5) {
+        if (phase < 3) {
+          it.printf(0, 0, "\x06 LOCKED        ");
+          it.printf(0, 1, "SIMULTANEOUS CHG");
+        } else {
+          it.printf(0, 0, "                ");
+          it.printf(0, 1, "                ");
+        }
+
+      // Car 1 charging
+      } else if (id(relay1).state && id(outlet1_pf)->state && outlet1_pf->state > .3 && id(outlet1_current).state > .5) {
+        it.printf(0, 0, "\x08""1:%4.1fA %s CHRG",
+          id(outlet1_current).state, chg);
+        it.printf(0, 1, "\x08""2:%4.1fA OFF   ",
+          id(outlet2_current).state);
+
+      // Car 2 charging
+      } else if (id(relay2).state && id(outlet2_pf)->state && outlet2_pf->state > .3 && id(outlet2_current).state > .5) {
+        it.printf(0, 0, "\x08""1:%4.1fA OFF   ",
+          id(outlet1_current).state);
+        it.printf(0, 1, "\x08""2:%4.1fA %s CHRG",
+          id(outlet2_current).state, chg);
+      
+      // Car 1 done charging
+      } else if (id(outlet1_pf)->state && outlet1_pf->state < .3 && id(outlet1_current).state < 2) {
+        it.printf(0, 0, "\x08""1:%4.1fA \x07    ",
+          id(outlet1_current).state);
+        it.printf(0, 1, "\x08""2:%4.1fA OFF   ",
+          id(outlet2_current).state);
+      
+      // Car 2 done charging
+      } else if (id(outlet2_pf)->state && outlet2_pf->state < .3 && id(outlet2_current).state < 2) {
+        it.printf(0, 0, "\x08""1:%4.1fA \x07    ",
+          id(outlet2_current).state);
+        it.printf(0, 1, "\x08""2:%4.1fA OFF   ",
+          id(outlet1_current).state);
+
+      // Neither charging — show relay state
+      } else {
+        it.printf(0, 0, "\x08""1:%4.1fA %s",
+          id(outlet1_current).state,
+          id(relay1).state ? "ON     " : "OFF    ");
+        it.printf(0, 1, "\x08""2:%4.1fA %s",
+          id(outlet2_current).state,
+          id(relay2).state ? "ON     " : "OFF    ");
+      }
+
+# ── UART + PZEM ──────────────────────────────────────────────────────
+uart:
+  id: pzem_uart
+  tx_pin: GPIO17
+  rx_pin: GPIO16
+  baud_rate: 9600
+  stop_bits: 1
+  debug:
+    direction: BOTH
+    dummy_receiver: false
+
+modbus:
+  uart_id: pzem_uart
+  id: mod_bus
+
+sensor:
+  - platform: pzemac
+    modbus_id: mod_bus
+    address: 1
+    update_interval: 10s
+    current:
+      name: "Car 1 Current"
+      id: outlet1_current
+    voltage:
+      name: "Car 1 Voltage"
+    power:
+      name: "Car 1 Power"
+    energy:
+      name: "Car 1 Energy"
+    frequency:
+      name: "Car 1 Frequency"
+    power_factor:
+      name: "Car 1 Power Factor"
+      id: outlet1_pf
+
+  - platform: pzemac
+    modbus_id: mod_bus
+    address: 2
+    update_interval: 10s
+    current:
+      name: "Car 2 Current"
+      id: outlet2_current
+    voltage:
+      name: "Car 2 Voltage"
+    power:
+      name: "Car 2 Power"
+    energy:
+      name: "Car 2 Energy"
+    frequency:
+      name: "Car 2 Frequency"
+    power_factor:
+      name: "Car 2 Power Factor"
+      id: outlet2_pf
+
+# ── TEXT SENSORS ──────────────────────────────────────────────────────
+text_sensor:
+  - platform: template
+    name: "Car 1 Status"
+    id: outlet1_status
+    lambda: |-
+      if (id(relay1).state && id(outlet1_current).state > 0.5)
+        return {"Charging"};
+      else if (id(relay1).state)
+        return {"Done Charging"};
+      else
+        return {"Idle"};
+    update_interval: 10s
+
+  - platform: template
+    name: "Car 2 Status"
+    id: outlet2_status
+    lambda: |-
+      if (id(relay2).state && id(outlet2_current).state > 0.5)
+        return {"Charging"};
+      else if (id(relay2).state)
+        return {"Done Charging"};
+      else
+        return {"Idle"};
+    update_interval: 10s
+
+  - platform: template
+    name: "Interlock Status"
+    lambda: |-
+      if (id(outlet1_current).state > 0.5 && id(outlet2_current).state > 0.5)
+        return {"Locked - Simultaneous Draw"};
+      else
+        return {"OK"};
+    update_interval: 5s
+
+  - platform: homeassistant
+    id: car1_start_time
+    entity_id: input_datetime.car1_charge_start
+    
+  - platform: homeassistant
+    id: car1_stop_time
+    entity_id: input_datetime.car1_charge_stop
+
+  - platform: homeassistant
+    id: car2_start_time
+    entity_id: input_datetime.car2_charge_start
+
+  - platform: homeassistant
+    id: car2_stop_time
+    entity_id: input_datetime.car2_charge_stop
+
+# ── BINARY SENSORS ────────────────────────────────────────────────────
+binary_sensor:
+  - platform: template
+    name: "Simultaneous Charge Detected"
+    id: interlock_fault
+    lambda: |-
+      return id(outlet1_current).state > 0.5 &&
+             id(outlet2_current).state > 0.5;
+    device_class: problem
+
+  - platform: gpio
+    pin:
+      number: GPIO32
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "Panel Switch Car 1"
+    id: switch_outlet1
+    on_press:
+      - switch.turn_on: relay1
+      - switch.turn_off: relay2
+    on_release:
+      - switch.turn_off: relay1
+
+  - platform: gpio
+    pin:
+      number: GPIO33
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "Panel Switch Car 2"
+    id: switch_outlet2
+    on_press:
+      - switch.turn_on: relay2
+      - switch.turn_off: relay1
+    on_release:
+      - switch.turn_off: relay2
+
+# ── RELAYS ────────────────────────────────────────────────────────────
+switch:
+  - platform: gpio
+    pin:
+      number: GPIO25
+      inverted: false
+    name: "Car 1 Switch"
+    id: relay1
+    restore_mode: ALWAYS_OFF
+    on_turn_on:
+      # Layer 1 interlock: relay 1 on forces relay 2 off
+      - switch.turn_off: relay2
+
+  - platform: gpio
+    pin:
+      number: GPIO26
+      inverted: false
+    name: "Car 2 Switch"
+    id: relay2
+    restore_mode: ALWAYS_OFF
+    on_turn_on:
+      # Layer 1 interlock: relay 2 on forces relay 1 off
+      - switch.turn_off: relay1
+
+# ── SCHEDULING ────────────────────────────────────────────────────────
+time:
+  - platform: homeassistant
+    id: ha_time
+
+interval:
+  - interval: 10s
+    then:
+      - lambda: |-
+          auto now = id(ha_time).now();
+          if (!now.is_valid()) return;
+          if (now.second > 10) return;
+          // Guard against empty strings if HA is unreachable
+          if (id(car1_start_time).state.length() < 5) return;
+
+          int hour   = now.hour;
+          int minute = now.minute;
+
+          // Parse "HH:MM:SS" strings from input_datetime helpers
+          auto parse_hour = [](std::string t) {
+            return atoi(t.substr(0, 2).c_str());
+          };
+          auto parse_minute = [](std::string t) {
+            return atoi(t.substr(3, 2).c_str());
+          };
+
+          int c1h = parse_hour(id(car1_start_time).state);
+          int c1m = parse_minute(id(car1_start_time).state);
+
+          int c2h = parse_hour(id(car2_start_time).state);
+          int c2m = parse_minute(id(car2_start_time).state);
+
+          int c2sh = parse_hour(id(car2_stop_time).state);
+          int c2sm = parse_minute(id(car2_stop_time).state);
+
+          if (hour == c1h && minute == c1m) {
+            id(relay1).turn_on();
+          }
+          if (hour == c2h && minute == c2m) {
+            id(relay1).turn_off();
+            id(relay2).turn_on();
+          }
+          if (hour == c2sh && minute == c2sm) {
+            id(relay2).turn_off();
+          }
+
+# ── INTERLOCK + CHARGING COMPLETE ────────────────────────────────────
+  - interval: 5s
+    then:
+      # Layer 2 interlock — current-sense simultaneous draw detection
+      - if:
+          condition:
+            lambda: |-
+              return id(outlet1_current).state > 0.5 &&
+                     id(outlet2_current).state > 0.5;
+          then:
+            - switch.turn_off: relay2
+            - logger.log:
+                level: WARN
+                format: "Simultaneous draw detected (C1:%.1fA C2:%.1fA) — cut relay 2"
+                args: ['id(outlet1_current).state', 'id(outlet2_current).state']
+
+      # Charging complete — Car 1 finished early, switch to Car 2
+      - if:
+          condition:
+            lambda: |-
+              return id(relay1).state &&
+                     id(outlet1_current).state < 0.5 &&
+                     id(outlet2_current).state < 0.5 &&
+                     !id(relay2).state;
+          then:
+            - delay: 60s
+            - if:
+                condition:
+                  lambda: |-
+                    return id(relay1).state &&
+                           id(outlet1_current).state < 0.5;
+                then:
+                  - switch.turn_off: relay1
+                  - switch.turn_on: relay2
+                  - logger.log:
+                      level: INFO
+                      format: "Car 1 finished charging — switching to Car 2"
+
+      # Charging complete — Car 2 finished early
+      - if:
+          condition:
+            lambda: |-
+              return id(relay2).state &&
+                     id(outlet2_current).state < 0.5 &&
+                     id(outlet1_current).state < 0.5 &&
+                     !id(relay1).state;
+          then:
+            - delay: 60s
+            - if:
+                condition:
+                  lambda: |-
+                    return id(relay2).state &&
+                           id(outlet2_current).state < 0.5;
+                then:
+                  - switch.turn_off: relay2
+                  - switch.turn_on: relay1
+                  - logger.log:
+                      level: INFO
+                      format: "Car 2 finished charging — switching to Car 1"
