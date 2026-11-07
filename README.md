@@ -73,6 +73,64 @@ The HLK-PM01 supplies 5 V for the ESP32, the relay coils and the LCD. The ESP32'
 
 Both PZEMs sit on one Modbus RTU bus at different addresses, 0x01 and 0x02. Every module ships at 0x01, so set the addresses one module at a time, with AC live and only that module connected. See [`tools/pzem`](tools/pzem).
 
+#### Setting PZEM B to address 0x02
+
+PZEM A keeps the factory address, 0x01. Change PZEM B once, from a Mac or PC, before it goes on the shared bus. The address is stored in the module, so it survives power cycles and reflashing the ESP32.
+
+You need a USB-to-TTL adapter (CP2102 or similar) and the scripts in [`tools/pzem`](tools/pzem).
+
+1. **Disconnect PZEM A completely**, both its TTL header and its AC terminals. Every module answers at 0x01, so any other PZEM on the bus would also take the new address.
+2. **Wire PZEM B's TTL header to the adapter:**
+
+   | PZEM B | USB-to-TTL adapter |
+   | --- | --- |
+   | `VCC` | `3V3` (or `5V`; the V4.0 accepts 3.3–5 V) |
+   | `GND` | `GND` |
+   | `TX` | `RXD` |
+   | `RX` | `TXD` |
+
+3. **Apply AC to PZEM B's terminals 1 (N) and 2 (L)** from the fused, GFCI-protected bench feed. The metering chip runs off the AC side, so the module won't answer on Modbus without it. The CT doesn't need to be connected.
+4. **Find the adapter's serial port** and set `port=` at the top of each script to match:
+
+   ```sh
+   ls /dev/cu.usbserial* /dev/cu.SLAB* /dev/cu.wch* 2>/dev/null
+   ```
+
+5. **Install the script dependencies** if you haven't already:
+
+   ```sh
+   python -m venv .venv && source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+6. **Confirm the module answers at 0x01:**
+
+   ```sh
+   python tools/pzem/modbus-trble.py
+   ```
+
+   Expect `Address 1: responded with 1` and no response at address 2. If address 1 doesn't respond either, check TX/RX crossover and that AC is on terminals 1–2.
+
+7. **Write the new address:**
+
+   ```sh
+   python tools/pzem/modbus-addr.py
+   ```
+
+   This writes `0x02` to the module's address register (holding register `0x0002`) on the module at 0x01. If the script reports an error after the write, run the next step before retrying, since the address may already have changed.
+
+8. **Power-cycle the AC to PZEM B, then verify:**
+
+   ```sh
+   python tools/pzem/modbus-trble.py
+   ```
+
+   Expect no response at address 1 and `Address 2: responded with 2`.
+
+9. **Label the module** "B / 0x02" so the two can't be swapped later.
+
+Then reconnect PZEM A and put both on the shared bus. ESPHome's `pzemac` entries in `ev-charger.yaml` already expect address 1 for car 1 and address 2 for car 2.
+
 Whether the two TX lines can be tied directly depends on how the PZEM drives TX:
 
 - **Open-collector output.** If an idle TX line sits high through a pull-up of several kΩ, the two lines can be tied together.
@@ -112,7 +170,7 @@ The ESPHome configuration is [`ev-charger.yaml`](ev-charger.yaml). It was built 
 
 Python scripts in [`tools/pzem`](tools/pzem) talk to a PZEM through a USB-to-TTL adapter (CP2102), for setting and checking Modbus addresses off the ESP32. Edit the serial port at the top of each script first.
 
-- `modbus-addr.py` changes the module at address 0x01 to 0x02. Run it with only the second module connected.
+- `modbus-addr.py` changes the module at address 0x01 to 0x02. Run it with only the second module connected. See [Setting PZEM B to address 0x02](#setting-pzem-b-to-address-0x02).
 - `modbus-trble.py` polls 0x01 and 0x02 and reports which answer.
 - `modbus-trble1.py` reads the address register from the module at 0x02.
 
