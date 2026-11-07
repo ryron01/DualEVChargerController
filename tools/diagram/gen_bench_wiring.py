@@ -240,6 +240,21 @@ def switches(x, y, w, h):
     pin(x, y+44); pin(x, y+70); pin(x+75, y)
 
 
+def shifter(x, y, w, h):
+    out.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="4" fill="#1b4f9c" stroke="#0f3268" stroke-width="1.2"/>')
+    text(x+w/2, y+42, "Level shifter", "cnamew", "middle")
+    text(x+w/2, y+57, "BSS138, 4-ch", "csubw", "middle")
+    for px, lab in [(x+20, "HV"), (x+55, "GND"), (x+130, "LV")]:
+        pin(px, y)
+        text(px, y+16, lab, "pinw", "middle")
+    for py, lab in [(y+50, "HV1"), (y+70, "HV2")]:
+        pin(x, py)
+        text(x+8, py+4, lab, "pinw")
+    for py, lab in [(y+50, "LV1"), (y+70, "LV2")]:
+        pin(x+w, py)
+        text(x+w-8, py+4, lab, "pinw", "end")
+
+
 def rails(x1, x2):
     out.append(f'<rect x="{x1-12}" y="678" width="{x2-x1+58}" height="60" rx="4" class="bb"/>')
     text(x2+8, 694, "+5V", "railt")
@@ -273,7 +288,8 @@ rails(260, 1210)
 esp32(620, 790, 420, 140,
       [(640, "G25"), (700, "G16"), (740, "G17"), (800, "G26"), (970, "5V"), (995, "GND"), (1020, "3V3")],
       [(880, "G22"), (900, "G23")])
-lcd(260, 820, 280, 100)
+lcd(60, 820, 280, 100)
+shifter(400, 830, 150, 90)
 out.append('<rect x="1040" y="855" width="0" height="0"/>')
 switches(1100, 830, 150, 96)
 for py, lab in [(874, "G32"), (900, "G33")]:
@@ -358,12 +374,21 @@ dot(995, 708, "gndl")
 wire("v33", [(1020, 790), (1020, 726)])
 dot(1020, 726, "v33")
 # LCD
-wire("i2c", [(540, 880), (620, 880)])
-wire("i2c", [(540, 900), (620, 900)])
-wire("v5", [(540, 860), (560, 860), (560, 800), (300, 800), (300, 690)])
+wire("i2c5", [(340, 880), (400, 880)])
+wire("i2c5", [(340, 900), (400, 900)])
+wire("i2c", [(550, 880), (620, 880)])
+wire("i2c", [(550, 900), (620, 900)])
+wire("v5", [(340, 860), (358, 860), (358, 800), (300, 800), (300, 690)])
 dot(300, 690, "v5")
-wire("gndl", [(540, 840), (552, 840), (552, 812), (330, 812), (330, 708)])
+wire("gndl", [(340, 840), (348, 840), (348, 812), (330, 812), (330, 708)])
 dot(330, 708, "gndl")
+# level shifter supplies
+wire("v5", [(420, 830), (420, 690)])
+dot(420, 690, "v5")
+wire("gndl", [(455, 830), (455, 708)])
+dot(455, 708, "gndl")
+wire("v33", [(530, 830), (530, 726)])
+dot(530, 726, "v33")
 
 # panel switches (INPUT_PULLUP, switch to GND)
 wire("sw", [(1040, 874), (1100, 874)])
@@ -375,7 +400,7 @@ out.append('<rect x="752" y="926" width="0" height="0"/>')
 
 svg = f'''<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dt dd">%%STYLE%%
 <title id="dt">Dual PZEM EV charger bench wiring</title>
-<desc id="dd">120 VAC feed into Wago L, N and ground buses; each relay switches its outlet hot, which passes through a solid-core CT; both PZEM-004T V4 modules take fused L and N on terminals 1 and 2 and CT leads on 3 and 4; low-voltage side runs on breadboard rails from an HLK-PM01, with both PZEMs sharing one UART to the ESP32 and an I2C LCD.</desc>
+<desc id="dd">120 VAC feed into Wago L, N and ground buses; each relay switches its outlet hot, which passes through a solid-core CT; both PZEM-004T V4 modules take fused L and N on terminals 1 and 2 and CT leads on 3 and 4; low-voltage side runs on breadboard rails from an HLK-PM01, with both PZEMs sharing one UART to the ESP32 and an I2C LCD behind a 3.3 V to 5 V level shifter.</desc>
 {''.join(out[:1])}
 {''.join(wires_svg)}
 {''.join(out[1:])}
@@ -385,7 +410,7 @@ svg = f'''<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="im
 # components should sit above wires (wires end at their edges); re-order: wires first then components then dots
 svg = f'''<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dt dd">%%STYLE%%
 <title id="dt">Dual PZEM EV charger bench wiring</title>
-<desc id="dd">120 VAC feed into Wago L, N and ground buses; each relay switches its outlet hot, which passes through a solid-core CT; both PZEM-004T V4 modules take fused L and N on terminals 1 and 2 and CT leads on 3 and 4; low-voltage side runs on breadboard rails from an HLK-PM01, with both PZEMs sharing one UART to the ESP32 and an I2C LCD.</desc>
+<desc id="dd">120 VAC feed into Wago L, N and ground buses; each relay switches its outlet hot, which passes through a solid-core CT; both PZEM-004T V4 modules take fused L and N on terminals 1 and 2 and CT leads on 3 and 4; low-voltage side runs on breadboard rails from an HLK-PM01, with both PZEMs sharing one UART to the ESP32 and an I2C LCD behind a 3.3 V to 5 V level shifter.</desc>
 <g class="comp-under">{''.join(o for o in out if 'class="bb"' in o or 'class="iso"' in o)}</g>
 <g class="wires">{''.join(wires_svg)}</g>
 <g class="comps">{''.join(o for o in out if 'class="bb"' not in o and 'class="iso"' not in o)}</g>

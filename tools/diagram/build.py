@@ -15,7 +15,7 @@ standalone_css = '''<style>
 .w{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:2}
 .heavy{stroke-width:3.6}
 .hot{stroke:#d23b2a}.neu{stroke:#7c8794}.gnd_ac{stroke:#2f9e44}.ctl{stroke:#c98a00;stroke-dasharray:5 3}
-.v5{stroke:#c2255c}.gndl{stroke:#343a40}.v33{stroke:#e07d00}.tx{stroke:#1971c2}.rx{stroke:#0b7285}.i2c{stroke:#7048e8}.relay{stroke:#a05a2c}.sw{stroke:#5f3dc4}
+.v5{stroke:#c2255c}.gndl{stroke:#343a40}.v33{stroke:#e07d00}.tx{stroke:#1971c2}.rx{stroke:#0b7285}.i2c{stroke:#7048e8}.i2c5{stroke:#7048e8;stroke-dasharray:6 3}.relay{stroke:#a05a2c}.sw{stroke:#5f3dc4}
 .rail{stroke-width:4}
 .dot.v5{fill:#c2255c}.dot.gndl{fill:#343a40}.dot.v33{fill:#e07d00}.dot.tx{fill:#1971c2}.dot.rx{fill:#0b7285}
 text{font-family:"IBM Plex Sans","Segoe UI",Helvetica,Arial,sans-serif}

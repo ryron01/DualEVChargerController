@@ -40,7 +40,7 @@ An interactive version with the pre-power checklist and pin map is in [`docs/ben
 
 ### Low-voltage side
 
-The HLK-PM01 supplies 5 V for the ESP32, the relay coils and the LCD. The ESP32's 3V3 pin powers both PZEM interface sides, so their TX lines idle at 3.3 V.
+The HLK-PM01 supplies 5 V for the ESP32, the relay coils and the LCD. The ESP32's 3V3 pin powers both PZEM interface sides, so their TX lines idle at 3.3 V. The LCD runs at 5 V and connects to the ESP32 through a BSS138 level shifter.
 
 | ESP32 pin | Connects to | Notes |
 | --- | --- | --- |
@@ -48,14 +48,24 @@ The HLK-PM01 supplies 5 V for the ESP32, the relay coils and the LCD. The ESP32'
 | `GPIO17` | Both PZEM RX | UART2 TX |
 | `GPIO25` | Relay A `IN` | Car 1 |
 | `GPIO26` | Relay B `IN` | Car 2 |
-| `GPIO22` | LCD `SDA` | PCF8574 backpack at 0x27 |
-| `GPIO23` | LCD `SCL` | |
+| `GPIO22` | Level shifter `LV1` → LCD `SDA` | PCF8574 backpack at 0x27 |
+| `GPIO23` | Level shifter `LV2` → LCD `SCL` | |
 | `GPIO32` | Panel switch, car 1 | Input pull-up, switch to GND |
 | `GPIO33` | Panel switch, car 2 | Input pull-up, switch to GND |
 | `5V` | +5 V rail | From HLK-PM01 |
-| `3V3` | +3.3 V rail | PZEM `VCC` |
+| `3V3` | +3.3 V rail | PZEM `VCC`, level shifter `LV` |
 
-- **LCD pull-ups.** Most PCF8574 backpacks pull SDA and SCL up to their own VCC. Powered at 5 V, that puts 5 V on GPIO22 and GPIO23. Remove the backpack's pull-ups and fit 4.7 kΩ pull-ups to 3.3 V, or add a level shifter.
+- **LCD level shifter.** The PCF8574 backpack pulls SDA and SCL up to its own 5 V supply, which is above the ESP32's 3.6 V absolute maximum. Running the backpack at 3.3 V instead leaves the display too faint, and a 3.3 V high is below the PCF8574's 0.7 × VCC (3.5 V) input threshold at 5 V. A BSS138 shifter keeps each side at its own level:
+
+  | Shifter | Connects to |
+  | --- | --- |
+  | `LV` | 3V3 |
+  | `HV` | +5 V |
+  | `GND` | GND |
+  | `LV1` / `LV2` | `GPIO22` / `GPIO23` |
+  | `HV1` / `HV2` | Backpack `SDA` / `SCL` |
+
+  Power down before moving any I2C wire. An unpowered PCF8574 holds the bus low, which crashes the ESP32's I2C recovery (`SCL is held LOW`).
 - **Relay trigger.** Set the relay module's trigger jumper to H and confirm it switches from a 3.3 V GPIO.
 - **5 V budget.** The HLK-PM01 is rated 600 mA. ESP32 Wi-Fi peaks (about 250 mA), two relay coils (about 90 mA each) and the LCD backlight total roughly 460 mA.
 
@@ -76,7 +86,8 @@ Whether the two TX lines can be tied directly depends on how the PZEM drives TX:
 | 2 | Peacefair PZEM-004T-100A V4.0 | With solid-core 100 A CT |
 | 2 | 1-channel relay module, SONGLE SLA-05VDC-SL-C | 30 A contacts, 5 V coil |
 | 1 | HLK-PM01 | 120 VAC to 5 V, 600 mA |
-| 1 | 1602 LCD with PCF8574 I2C backpack | Address 0x27 |
+| 1 | 1602 LCD with PCF8574 I2C backpack | Address 0x27, 5 V |
+| 1 | BSS138 bidirectional level shifter, 4-channel | Adafruit 757, SparkFun BOB-12009 or generic; 2 channels used |
 | 2 | 15 A or 20 A receptacle | One per car |
 | 2 | Toggle (maintained) panel switch | On while closed, off when opened |
 | 1 | Inline fuse holder, 1 A fuse | For the PZEM and HLK-PM01 tap |
