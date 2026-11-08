@@ -255,6 +255,24 @@ def shifter(x, y, w, h):
         text(x+w-8, py+4, lab, "pinw", "end")
 
 
+def diode(x, y1, y2, lab):
+    """Vertical diode, cathode (bar) at the top toward the PZEM."""
+    h = y2 - y1
+    out.append(f'<polygon points="{x-7},{y2-3} {x+7},{y2-3} {x},{y1+5}" fill="#2b2d31" stroke="#2b2d31" stroke-width="1"/>')
+    out.append(f'<line x1="{x-8}" y1="{y1+4}" x2="{x+8}" y2="{y1+4}" stroke="#2b2d31" stroke-width="2.4"/>')
+    out.append(f'<line x1="{x}" y1="{y1}" x2="{x}" y2="{y1+4}" stroke="#2b2d31" stroke-width="2"/>')
+    out.append(f'<line x1="{x}" y1="{y2-3}" x2="{x}" y2="{y2}" stroke="#2b2d31" stroke-width="2"/>')
+    text(x-11, y1+h/2+4, lab, "railt", "end")
+
+
+def resistor(x, y1, y2, lab):
+    out.append(f'<rect x="{x-5}" y="{y1}" width="10" height="{y2-y1}" rx="3" fill="#e8d7b0" stroke="#8a7650" stroke-width="1"/>')
+    for i, c in enumerate(["#7a4a1c", "#111111", "#e07d00"]):
+        by = y1 + 5 + i*4
+        out.append(f'<rect x="{x-5}" y="{by}" width="10" height="2" fill="{c}"/>')
+    text(x+9, (y1+y2)/2+4, lab, "railt")
+
+
 def rails(x1, x2):
     out.append(f'<rect x="{x1-12}" y="678" width="{x2-x1+58}" height="60" rx="4" class="bb"/>')
     text(x2+8, 694, "+5V", "railt")
@@ -353,13 +371,23 @@ for ox, gpio_x, in_y in [(AX, 640, 772), (BX, 800, 770)]:
 
 # PZEM power
 for ox in (AX, BX):
-    wire("v33", [(ox+60, 592), (ox+60, 726)])
-    dot(ox+60, 726, "v33")
+    wire("v5", [(ox+60, 592), (ox+60, 690)])
+    dot(ox+60, 690, "v5")
     wire("gndl", [(ox+180, 592), (ox+180, 708)])
     dot(ox+180, 708, "gndl")
 # UART: PZEM TX -> junction -> G16 ; G17 -> junction -> PZEM RX
-wire("tx", [(AX+140, 592), (AX+140, 760), (700, 760)])
-wire("tx", [(BX+140, 592), (BX+140, 760), (700, 760)])
+# diode-OR: one Schottky per PZEM TX, cathode toward the PZEM, anodes joined
+for x, lab in [(AX+140, "D1"), (BX+140, "D2")]:
+    wire("tx", [(x, 592), (x, 608)])
+    diode(x, 608, 632, lab)
+wire("tx", [(AX+140, 632), (AX+140, 760), (700, 760)])
+wire("tx", [(BX+140, 632), (BX+140, 760), (700, 760)])
+# 10k pull-up from the anode junction to 3V3
+wire("tx", [(BX+140, 652), (982, 652), (982, 655)])
+dot(BX+140, 652, "tx")
+resistor(982, 655, 677, "10k")
+wire("v33", [(982, 677), (982, 726)])
+dot(982, 726, "v33")
 wire("tx", [(700, 760), (700, 790)])
 dot(700, 760, "tx")
 wire("rx", [(AX+100, 592), (AX+100, 748), (740, 748)])
@@ -400,7 +428,7 @@ out.append('<rect x="752" y="926" width="0" height="0"/>')
 
 svg = f'''<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dt dd">%%STYLE%%
 <title id="dt">Dual PZEM EV charger bench wiring</title>
-<desc id="dd">120 VAC feed into Wago L, N and ground buses; each relay switches its outlet hot, which passes through a solid-core CT; both PZEM-004T V4 modules take fused L and N on terminals 1 and 2 and CT leads on 3 and 4; low-voltage side runs on breadboard rails from an HLK-PM01, with both PZEMs sharing one UART to the ESP32 and an I2C LCD behind a 3.3 V to 5 V level shifter.</desc>
+<desc id="dd">120 VAC feed into Wago L, N and ground buses; each relay switches its outlet hot, which passes through a solid-core CT; both PZEM-004T V4 modules take fused L and N on terminals 1 and 2 and CT leads on 3 and 4; low-voltage side runs on breadboard rails from an HLK-PM01, with both PZEMs sharing one UART to the ESP32 through a Schottky diode-OR on TX and an I2C LCD behind a 3.3 V to 5 V level shifter.</desc>
 {''.join(out[:1])}
 {''.join(wires_svg)}
 {''.join(out[1:])}
@@ -410,7 +438,7 @@ svg = f'''<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="im
 # components should sit above wires (wires end at their edges); re-order: wires first then components then dots
 svg = f'''<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dt dd">%%STYLE%%
 <title id="dt">Dual PZEM EV charger bench wiring</title>
-<desc id="dd">120 VAC feed into Wago L, N and ground buses; each relay switches its outlet hot, which passes through a solid-core CT; both PZEM-004T V4 modules take fused L and N on terminals 1 and 2 and CT leads on 3 and 4; low-voltage side runs on breadboard rails from an HLK-PM01, with both PZEMs sharing one UART to the ESP32 and an I2C LCD behind a 3.3 V to 5 V level shifter.</desc>
+<desc id="dd">120 VAC feed into Wago L, N and ground buses; each relay switches its outlet hot, which passes through a solid-core CT; both PZEM-004T V4 modules take fused L and N on terminals 1 and 2 and CT leads on 3 and 4; low-voltage side runs on breadboard rails from an HLK-PM01, with both PZEMs sharing one UART to the ESP32 through a Schottky diode-OR on TX and an I2C LCD behind a 3.3 V to 5 V level shifter.</desc>
 <g class="comp-under">{''.join(o for o in out if 'class="bb"' in o or 'class="iso"' in o)}</g>
 <g class="wires">{''.join(wires_svg)}</g>
 <g class="comps">{''.join(o for o in out if 'class="bb"' not in o and 'class="iso"' not in o)}</g>

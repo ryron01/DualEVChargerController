@@ -10,7 +10,8 @@ An ESP32 controller that lets two Level 1 EV chargers share one 20 A garage circ
 Bench rebuild in progress, November 2026.
 
 - The first deployment could not hold a Wi-Fi connection from inside the enclosure. The controller now uses an ESP32 with an external u.FL antenna (WROOM-32U).
-- Both PZEMs share one UART, and earlier attempts saw bus contention between the two TX lines. The bench build is for working that out. See [Shared UART](#shared-uart-between-the-two-pzems).
+- Both PZEMs now answer on one shared UART, using a Schottky diode-OR on the TX lines and 5 V on the PZEM interface. See [Shared UART](#shared-uart-between-the-two-pzems).
+- Open issue: the LCD doesn't work through the level shifter yet, so on the bench it's wired directly to GPIO22/23. That puts the backpack's 5 V pull-ups on the ESP32's pins, which is out of spec. Fix this before the controller goes back in service.
 
 ## Features
 
@@ -35,25 +36,25 @@ An interactive version with the pre-power checklist and pin map is in [`docs/ben
 - **Relays.** Each relay's COM takes L from the bus, and its NO contact feeds the outlet. NO keeps the outlets off when the ESP32 reboots or loses power.
 - **CTs.** The CTs are solid-core toroids. Thread each outlet's hot through its CT before landing either end, and run only the hot through it, never L and N together. Keep the CT leads connected to the PZEM whenever load current can flow. The PZEM-004T doesn't report power direction, so CT orientation doesn't change the readings. Wire both channels the same way anyway (red to terminal 3).
 - **PZEM voltage inputs.** Both PZEMs take L and N from a tap behind a 1 A fuse, upstream of the relays, so they keep measuring and answering on Modbus with the relays open.
-- **PZEM terminal order.** The V4.0 boards have no rear silkscreen. Counting from the `VCC=3.3-5.0V` edge, terminal 1 is N, 2 is L, and 3–4 take the CT leads. Confirm with a meter before applying power: with power off, terminals 3–4 read low ohms through the CT burden resistor.
+- **PZEM terminal order.** The V4.0 boards have no rear silkscreen. Counting from the `VCC=3.3-5.0V` edge, terminal 1 is N, 2 is L, and 3–4 take the CT leads. This order is confirmed on the bench build. Check new boards with a meter before applying power: with power off, terminals 3–4 read low ohms through the CT burden resistor.
 - **Power for the measurement side.** The PZEM's metering chip runs off the AC voltage terminals. With no mains on terminals 1–2 the module never answers on Modbus, including when you set its address.
 
 ### Low-voltage side
 
-The HLK-PM01 supplies 5 V for the ESP32, the relay coils and the LCD. The ESP32's 3V3 pin powers both PZEM interface sides, so their TX lines idle at 3.3 V. The LCD runs at 5 V and connects to the ESP32 through a BSS138 level shifter.
+The HLK-PM01 supplies 5 V for the ESP32, the relay coils, the LCD and both PZEM interfaces. The PZEM TX lines reach the ESP32 through a diode-OR that keeps GPIO16 at 3.3 V, and the LCD connects through a BSS138 level shifter.
 
 | ESP32 pin | Connects to | Notes |
 | --- | --- | --- |
-| `GPIO16` | Both PZEM TX | UART2 RX |
-| `GPIO17` | Both PZEM RX | UART2 TX |
+| `GPIO16` | Diode-OR junction (both PZEM TX) | UART2 RX, 10 kΩ pull-up to 3V3 |
+| `GPIO17` | Both PZEM RX | UART2 TX, wired directly |
 | `GPIO25` | Relay A `IN` | Car 1 |
 | `GPIO26` | Relay B `IN` | Car 2 |
 | `GPIO22` | Level shifter `LV1` → LCD `SDA` | PCF8574 backpack at 0x27 |
 | `GPIO23` | Level shifter `LV2` → LCD `SCL` | |
 | `GPIO32` | Panel switch, car 1 | Input pull-up, switch to GND |
 | `GPIO33` | Panel switch, car 2 | Input pull-up, switch to GND |
-| `5V` | +5 V rail | From HLK-PM01 |
-| `3V3` | +3.3 V rail | PZEM `VCC`, level shifter `LV` |
+| `5V` | +5 V rail | From HLK-PM01; feeds PZEM `VCC` |
+| `3V3` | +3.3 V rail | Diode-OR pull-up, level shifter `LV` |
 
 - **LCD level shifter.** The PCF8574 backpack pulls SDA and SCL up to its own 5 V supply, which is above the ESP32's 3.6 V absolute maximum. Running the backpack at 3.3 V instead leaves the display too faint, and a 3.3 V high is below the PCF8574's 0.7 × VCC (3.5 V) input threshold at 5 V. A BSS138 shifter keeps each side at its own level:
 
@@ -67,7 +68,7 @@ The HLK-PM01 supplies 5 V for the ESP32, the relay coils and the LCD. The ESP32'
 
   Power down before moving any I2C wire. An unpowered PCF8574 holds the bus low, which crashes the ESP32's I2C recovery (`SCL is held LOW`).
 - **Relay trigger.** Set the relay module's trigger jumper to H and confirm it switches from a 3.3 V GPIO.
-- **5 V budget.** The HLK-PM01 is rated 600 mA. ESP32 Wi-Fi peaks (about 250 mA), two relay coils (about 90 mA each) and the LCD backlight total roughly 460 mA.
+- **5 V budget.** The HLK-PM01 is rated 600 mA. ESP32 Wi-Fi peaks (about 250 mA), two relay coils (about 90 mA each) and the LCD backlight total roughly 460 mA. The two PZEM interfaces add only a few mA.
 
 ### Shared UART between the two PZEMs
 
@@ -84,7 +85,7 @@ You need a USB-to-TTL adapter (CP2102 or similar) and the scripts in [`tools/pze
 
    | PZEM B | USB-to-TTL adapter |
    | --- | --- |
-   | `VCC` | `3V3` (or `5V`; the V4.0 accepts 3.3–5 V) |
+   | `VCC` | `5V` (the PZEM's RX opto is unreliable at 3.3 V) |
    | `GND` | `GND` |
    | `TX` | `RXD` |
    | `RX` | `TXD` |
@@ -131,10 +132,29 @@ You need a USB-to-TTL adapter (CP2102 or similar) and the scripts in [`tools/pze
 
 Then reconnect PZEM A and put both on the shared bus. ESPHome's `pzemac` entries in `ev-charger.yaml` already expect address 1 for car 1 and address 2 for car 2.
 
-Whether the two TX lines can be tied directly depends on how the PZEM drives TX:
+#### Wiring the shared bus
 
-- **Open-collector output.** If an idle TX line sits high through a pull-up of several kΩ, the two lines can be tied together.
-- **Push-pull output.** If TX actively drives high, use a diode-OR: one diode per PZEM, cathode toward the PZEM TX, anodes joined at GPIO16, with a 10 kΩ pull-up to 3.3 V. A Schottky (BAT54 or BAT43) leaves more low-level margin than a 1N4148.
+The two PZEM TX lines can't be tied together directly. Each PZEM pulls its own TX pin up to VCC through a 4.7 kΩ resistor (R8, marked `472`, beside the header). When one module answers, its optocoupler has to pull the line low against the other module's pull-up as well, and it isn't strong enough to get close to ground. Each module works alone, and neither works with both connected.
+
+A diode-OR isolates them:
+
+| From | To | Notes |
+| --- | --- | --- |
+| PZEM A `TX` | D1 cathode (banded end) | Schottky: 1N5819, 1N5817, BAT43 or BAT54 |
+| PZEM B `TX` | D2 cathode (banded end) | |
+| D1 and D2 anodes, joined | `GPIO16` | Diode-OR junction |
+| Diode-OR junction | 10 kΩ to 3V3 | Pull-up |
+| `GPIO17` | Both PZEM `RX` | Direct; the two RX inputs draw about 4 mA together |
+| Both PZEM `VCC` | +5 V rail | |
+
+An idle module's diode is reverse-biased, so its 5 V pull-up is cut off from the junction. The module that's answering only has to pull down the single 10 kΩ, and GPIO16 never sees more than 3.3 V, so the PZEM TX path doesn't need the level shifter. Before connecting GPIO16, power up and measure the junction to GND: about 3.3 V is correct, and about 5 V means a diode is backwards.
+
+Use Schottky diodes. A 1N4148 drops 0.6–0.7 V, which puts a low at roughly 0.9 V against the ESP32's 0.8 V maximum.
+
+Two earlier attempts failed for reasons worth knowing:
+
+- **PZEM `VCC` at 3.3 V.** The PZEM's RX input is an optocoupler LED in series with an indicator LED, which together drop about 3 V. At 3.3 V, the indicator glows on every request but the opto never switches reliably, so the modules hear the polls and never answer. The V4.0 silkscreen says 3.3–5.0 V, but power it from 5 V.
+- **Diodes reversed.** With each anode toward the PZEM TX, an idle module pushes 5 V through its diode onto GPIO16, and a module pulling low can't pass through it.
 
 ## Bill of materials
 
@@ -149,6 +169,8 @@ Whether the two TX lines can be tied directly depends on how the PZEM drives TX:
 | 2 | 15 A or 20 A receptacle | One per car |
 | 2 | Toggle (maintained) panel switch | On while closed, off when opened |
 | 1 | Inline fuse holder, 1 A fuse | For the PZEM and HLK-PM01 tap |
+| 2 | Schottky diode, 1N5819 or similar | PZEM TX diode-OR |
+| 1 | 10 kΩ resistor | Diode-OR pull-up to 3.3 V |
 | 5 | Wago 221-415 | L bus, L tap, N bus, N tap |
 | 1 | Wago 221-413 | Ground bus |
 
