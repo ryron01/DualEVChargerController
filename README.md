@@ -149,6 +149,18 @@ A diode-OR isolates them:
 
 An idle module's diode is reverse-biased, so its 5 V pull-up is cut off from the junction. The module that's answering only has to pull down the single 10 kΩ, and GPIO16 never sees more than 3.3 V, so the PZEM TX path doesn't need the level shifter. Before connecting GPIO16, power up and measure the junction to GND: about 3.3 V is correct, and about 5 V means a diode is backwards.
 
+To see the raw Modbus traffic while troubleshooting, add a `debug` block under `uart:` in `ev-charger.yaml` and reflash:
+
+```yaml
+uart:
+  # ...existing settings...
+  debug:
+    direction: BOTH
+    dummy_receiver: false
+```
+
+The log then shows each request as `>>>` and each reply as `<<<`. The first byte of a reply is the address of the module that answered. Requests with no `<<<` after them mean nothing answered. Remove the block again when you're done, since it logs every poll.
+
 Use Schottky diodes. A 1N4148 drops 0.6–0.7 V, which puts a low at roughly 0.9 V against the ESP32's 0.8 V maximum.
 
 Two earlier attempts failed for reasons worth knowing:

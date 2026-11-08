@@ -136,9 +136,6 @@ uart:
   rx_pin: GPIO16
   baud_rate: 9600
   stop_bits: 1
-  debug:
-    direction: BOTH
-    dummy_receiver: false
 
 modbus:
   uart_id: pzem_uart
