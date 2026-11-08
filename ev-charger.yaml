@@ -233,21 +233,6 @@ text_sensor:
         return {"OK"};
     update_interval: 5s
 
-  - platform: homeassistant
-    id: car1_start_time
-    entity_id: input_datetime.car1_charge_start
-    
-  - platform: homeassistant
-    id: car1_stop_time
-    entity_id: input_datetime.car1_charge_stop
-
-  - platform: homeassistant
-    id: car2_start_time
-    entity_id: input_datetime.car2_charge_start
-
-  - platform: homeassistant
-    id: car2_stop_time
-    entity_id: input_datetime.car2_charge_stop
 
 # ── BINARY SENSORS ────────────────────────────────────────────────────
 binary_sensor:
@@ -311,55 +296,10 @@ switch:
       - switch.turn_off: relay1
       - lambda: 'id(car2_has_charged) = false;'
 
-# ── SCHEDULING ────────────────────────────────────────────────────────
-time:
-  - platform: homeassistant
-    id: ha_time
-
-interval:
-  - interval: 10s
-    then:
-      - lambda: |-
-          auto now = id(ha_time).now();
-          if (!now.is_valid()) return;
-          if (now.second > 10) return;
-          // Guard against empty strings if HA is unreachable
-          if (id(car1_start_time).state.length() < 5) return;
-
-          int hour   = now.hour;
-          int minute = now.minute;
-
-          // Parse "HH:MM:SS" strings from input_datetime helpers
-          auto parse_hour = [](std::string t) {
-            return atoi(t.substr(0, 2).c_str());
-          };
-          auto parse_minute = [](std::string t) {
-            return atoi(t.substr(3, 2).c_str());
-          };
-
-          int c1h = parse_hour(id(car1_start_time).state);
-          int c1m = parse_minute(id(car1_start_time).state);
-
-          int c2h = parse_hour(id(car2_start_time).state);
-          int c2m = parse_minute(id(car2_start_time).state);
-
-          int c2sh = parse_hour(id(car2_stop_time).state);
-          int c2sm = parse_minute(id(car2_stop_time).state);
-
-          if (hour == c1h && minute == c1m) {
-            id(relay1).turn_on();
-          }
-          if (hour == c2h && minute == c2m) {
-            id(relay1).turn_off();
-            id(relay2).turn_on();
-          }
-          if (hour == c2sh && minute == c2sm) {
-            id(relay2).turn_off();
-          }
-
 # ── INTERLOCK ─────────────────────────────────────────────────────────
-# Charging handoff between cars lives in Home Assistant automations, so it
-# can change without reflashing. Safety interlocks stay on the device.
+# Scheduling and handoff between cars live in Home Assistant automations,
+# so they can change without reflashing. Safety interlocks stay on the device.
+interval:
   - interval: 5s
     then:
       # Layer 2 interlock — current-sense simultaneous draw detection

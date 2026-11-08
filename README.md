@@ -17,8 +17,8 @@ Bench build working, November 2026. Next step is moving it back into the enclosu
 
 - Two outlets with relay control, exposed to Home Assistant as `Car 1 Switch` and `Car 2 Switch`.
 - Two-layer interlock. Turning one relay on turns the other off, and if both outlets draw more than 0.5 A anyway, relay 2 is cut.
-- Scheduled charging from Home Assistant `input_datetime` helpers: car 1 starts, car 2 takes over at its start time, then stops.
-- Per-car status for Home Assistant: `Idle`, `Waiting for Car`, `Charging` or `Done Charging`. Handoff between cars belongs in Home Assistant automations, so it can change without reflashing.
+- Per-car status for Home Assistant: `Idle`, `Waiting for Car`, `Charging` or `Done Charging`.
+- No schedule or handoff logic on the device. Those run as Home Assistant automations, so they can change without reflashing. The controller keeps working as a pair of interlocked switches if Home Assistant is down.
 - 16×2 LCD with per-outlet current, charging animation, a done indicator and an interlock warning.
 - Two panel switches for manual control without Home Assistant.
 
@@ -179,14 +179,28 @@ Two earlier attempts failed for reasons worth knowing:
 The ESPHome configuration is [`ev-charger.yaml`](ev-charger.yaml). It was built with ESPHome 2025.5.2.
 
 1. Copy `secrets.example.yaml` to `secrets.yaml` and fill in your values. `secrets.yaml` is git-ignored.
-2. Create these Home Assistant helpers, each as a time-only `input_datetime`: `car1_charge_start`, `car1_charge_stop`, `car2_charge_start`, `car2_charge_stop`.
-3. Flash:
+2. Flash:
 
    ```sh
    python -m venv .venv && source .venv/bin/activate
    pip install -r requirements.txt
    esphome run ev-charger.yaml
    ```
+
+## Home Assistant automations
+
+Scheduling and handoff between cars are left to Home Assistant. The device exposes what automations need:
+
+| Entity | Use |
+| --- | --- |
+| `switch.ev_charger_controller_car_1_switch`, `switch.ev_charger_controller_car_2_switch` | Turn an outlet on or off. Turning one on turns the other off. |
+| `sensor.ev_charger_controller_car_1_status`, `sensor.ev_charger_controller_car_2_status` | `Idle`, `Waiting for Car`, `Charging` or `Done Charging` |
+| `sensor.ev_charger_controller_car_1_current`, `sensor.ev_charger_controller_car_2_current` | Per-outlet current, plus voltage, power, energy and power factor |
+| `binary_sensor.ev_charger_controller_simultaneous_charge_detected` | Interlock tripped |
+
+Entity IDs depend on how the device was named when it was added, so check them in Home Assistant.
+
+For a handoff, trigger on the active car's status changing to `Done Charging`, not on low current. An outlet only reaches `Done Charging` after its car has drawn current since the relay turned on, so an empty outlet stays at `Waiting for Car` and can't bounce the relays back and forth.
 
 ## PZEM tools
 
