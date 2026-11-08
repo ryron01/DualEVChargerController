@@ -7,11 +7,11 @@ An ESP32 controller that lets two Level 1 EV chargers share one 20 A garage circ
 
 ## Status
 
-Bench rebuild in progress, November 2026.
+Bench build working, November 2026. Next step is moving it back into the enclosure.
 
 - The first deployment could not hold a Wi-Fi connection from inside the enclosure. The controller now uses an ESP32 with an external u.FL antenna (WROOM-32U).
 - Both PZEMs now answer on one shared UART, using a Schottky diode-OR on the TX lines and 5 V on the PZEM interface. See [Shared UART](#shared-uart-between-the-two-pzems).
-- Open issue: the LCD doesn't work through the level shifter yet, so on the bench it's wired directly to GPIO22/23. That puts the backpack's 5 V pull-ups on the ESP32's pins, which is out of spec. Fix this before the controller goes back in service.
+- The LCD runs through a BSS138 level shifter, so the ESP32's I2C pins stay at 3.3 V.
 
 ## Features
 
