@@ -1,8 +1,8 @@
 """Compose the interactive perfboard soldering guide from render_perfboard.py output.
 
 Usage: python make_guide.py OUTDIR  (expects guide-data.json, top-inline.svg, bottom-inline.svg in OUTDIR)
-Writes OUTDIR/perfboard-guide.html (page body for publishing; no <html>/<head> wrapper)
-and OUTDIR/perfboard-guide-standalone.html (full document for the repo).
+Writes OUTDIR/perfboard-guide.html (full document, open in a browser)
+and OUTDIR/perfboard-guide-body.html (page body only, for publishing as a hosted page).
 """
 import json
 import os
@@ -207,9 +207,9 @@ svg.pb .wire{{transition:opacity .15s}}
 }})();
 </script>
 '''
-open(os.path.join(out, "perfboard-guide.html"), "w").write(page)
+open(os.path.join(out, "perfboard-guide-body.html"), "w").write(page)  # for publishing as a hosted page
 standalone = ('<!doctype html>\n<html lang="en"><head><meta charset="utf-8">'
               '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
               + page.replace("</style>", "</style>\n</head><body>", 1) + "</body></html>\n")
-open(os.path.join(out, "perfboard-guide-standalone.html"), "w").write(standalone)
+open(os.path.join(out, "perfboard-guide.html"), "w").write(standalone)
 print("guide written")

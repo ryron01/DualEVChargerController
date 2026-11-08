@@ -9,3 +9,8 @@ __pycache__/
 
 # macOS
 .DS_Store
+
+# Intermediate files from the perfboard renderer
+hardware/perfboard/guide-data.json
+hardware/perfboard/*-inline.svg
+hardware/perfboard/perfboard-guide-body.html
