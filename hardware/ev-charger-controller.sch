@@ -136,19 +136,25 @@
 <text x="0" y="2.5" size="1.27" layer="25" align="bottom-center">&gt;NAME</text>
 <text x="0" y="-2.5" size="1.27" layer="27" align="top-center">&gt;VALUE</text>
 </package>
-<package name="PINHD-1X6"><description>1x6 pin header or socket, 2.54 mm</description>
-<pad name="1" x="-6.35" y="0" drill="1" diameter="1.7" shape="square"/>
-<pad name="2" x="-3.81" y="0" drill="1" diameter="1.7" shape="round"/>
-<pad name="3" x="-1.27" y="0" drill="1" diameter="1.7" shape="round"/>
-<pad name="4" x="1.27" y="0" drill="1" diameter="1.7" shape="round"/>
-<pad name="5" x="3.81" y="0" drill="1" diameter="1.7" shape="round"/>
-<pad name="6" x="6.35" y="0" drill="1" diameter="1.7" shape="round"/>
-<wire x1="-7.62" y1="-1.27" x2="7.62" y2="-1.27" width="0.2032" layer="21"/>
-<wire x1="7.62" y1="-1.27" x2="7.62" y2="1.27" width="0.2032" layer="21"/>
-<wire x1="7.62" y1="1.27" x2="-7.62" y2="1.27" width="0.2032" layer="21"/>
-<wire x1="-7.62" y1="1.27" x2="-7.62" y2="-1.27" width="0.2032" layer="21"/>
-<text x="0" y="2.5" size="1.27" layer="25" align="bottom-center">&gt;NAME</text>
-<text x="0" y="-2.5" size="1.27" layer="27" align="top-center">&gt;VALUE</text>
+<package name="BSS138-4CH-MODULE"><description>4-channel BSS138 level shifter module, two rows of 6 at 2.54 mm, rows 10.16 mm apart (measure). Order per row: 1, 2, V, GND, 3, 4. Module mounts component side up.</description>
+<pad name="1" x="-6.35" y="-5.08" drill="1" diameter="1.7" shape="square"/>
+<pad name="2" x="-3.81" y="-5.08" drill="1" diameter="1.7" shape="round"/>
+<pad name="3" x="-1.27" y="-5.08" drill="1" diameter="1.7" shape="round"/>
+<pad name="4" x="1.27" y="-5.08" drill="1" diameter="1.7" shape="round"/>
+<pad name="5" x="3.81" y="-5.08" drill="1" diameter="1.7" shape="round"/>
+<pad name="6" x="6.35" y="-5.08" drill="1" diameter="1.7" shape="round"/>
+<pad name="7" x="-6.35" y="5.08" drill="1" diameter="1.7" shape="round"/>
+<pad name="8" x="-3.81" y="5.08" drill="1" diameter="1.7" shape="round"/>
+<pad name="9" x="-1.27" y="5.08" drill="1" diameter="1.7" shape="round"/>
+<pad name="10" x="1.27" y="5.08" drill="1" diameter="1.7" shape="round"/>
+<pad name="11" x="3.81" y="5.08" drill="1" diameter="1.7" shape="round"/>
+<pad name="12" x="6.35" y="5.08" drill="1" diameter="1.7" shape="round"/>
+<wire x1="-7.75" y1="-6.7" x2="7.75" y2="-6.7" width="0.2032" layer="21"/>
+<wire x1="7.75" y1="-6.7" x2="7.75" y2="6.7" width="0.2032" layer="21"/>
+<wire x1="7.75" y1="6.7" x2="-7.75" y2="6.7" width="0.2032" layer="21"/>
+<wire x1="-7.75" y1="6.7" x2="-7.75" y2="-6.7" width="0.2032" layer="21"/>
+<text x="0" y="7.58" size="1.27" layer="25" align="bottom-center">&gt;NAME</text>
+<text x="0" y="-7.58" size="1.27" layer="27" align="top-center">&gt;VALUE</text>
 </package>
 <package name="TERM-2-5.08"><description>2-way PCB screw terminal, 5.08 mm, rated for mains</description>
 <pad name="1" x="-2.54" y="0" drill="1.3" diameter="2.6" shape="square"/>
@@ -294,33 +300,25 @@
 <pin name="SW1" x="-5.08" y="0" visible="pin" length="short" direction="pas" rot="R0"/>
 <pin name="SW2" x="-5.08" y="-2.54" visible="pin" length="short" direction="pas" rot="R0"/>
 </symbol>
-<symbol name="SHIFTER-LV">
-<wire x1="-2.54" y1="-10.16" x2="5.08" y2="-10.16" width="0.254" layer="94"/>
-<wire x1="5.08" y1="-10.16" x2="5.08" y2="7.62" width="0.254" layer="94"/>
-<wire x1="5.08" y1="7.62" x2="-2.54" y2="7.62" width="0.254" layer="94"/>
-<wire x1="-2.54" y1="7.62" x2="-2.54" y2="-10.16" width="0.254" layer="94"/>
-<text x="-2.54" y="8.42" size="1.778" layer="95">&gt;NAME</text>
-<text x="-2.54" y="-12.76" size="1.778" layer="96">&gt;VALUE</text>
-<pin name="LV1" x="-5.08" y="5.08" visible="pin" length="short" direction="pas" rot="R0"/>
-<pin name="LV2" x="-5.08" y="2.54" visible="pin" length="short" direction="pas" rot="R0"/>
-<pin name="LV" x="-5.08" y="0" visible="pin" length="short" direction="pas" rot="R0"/>
-<pin name="GND" x="-5.08" y="-2.54" visible="pin" length="short" direction="pas" rot="R0"/>
-<pin name="LV3" x="-5.08" y="-5.08" visible="pin" length="short" direction="pas" rot="R0"/>
-<pin name="LV4" x="-5.08" y="-7.62" visible="pin" length="short" direction="pas" rot="R0"/>
-</symbol>
-<symbol name="SHIFTER-HV">
-<wire x1="-2.54" y1="-10.16" x2="5.08" y2="-10.16" width="0.254" layer="94"/>
-<wire x1="5.08" y1="-10.16" x2="5.08" y2="7.62" width="0.254" layer="94"/>
-<wire x1="5.08" y1="7.62" x2="-2.54" y2="7.62" width="0.254" layer="94"/>
-<wire x1="-2.54" y1="7.62" x2="-2.54" y2="-10.16" width="0.254" layer="94"/>
-<text x="-2.54" y="8.42" size="1.778" layer="95">&gt;NAME</text>
-<text x="-2.54" y="-12.76" size="1.778" layer="96">&gt;VALUE</text>
-<pin name="HV1" x="-5.08" y="5.08" visible="pin" length="short" direction="pas" rot="R0"/>
-<pin name="HV2" x="-5.08" y="2.54" visible="pin" length="short" direction="pas" rot="R0"/>
-<pin name="HV" x="-5.08" y="0" visible="pin" length="short" direction="pas" rot="R0"/>
-<pin name="GND" x="-5.08" y="-2.54" visible="pin" length="short" direction="pas" rot="R0"/>
-<pin name="HV3" x="-5.08" y="-5.08" visible="pin" length="short" direction="pas" rot="R0"/>
-<pin name="HV4" x="-5.08" y="-7.62" visible="pin" length="short" direction="pas" rot="R0"/>
+<symbol name="BSS138-4CH">
+<wire x1="-7.62" y1="-10.16" x2="7.62" y2="-10.16" width="0.254" layer="94"/>
+<wire x1="7.62" y1="-10.16" x2="7.62" y2="7.62" width="0.254" layer="94"/>
+<wire x1="7.62" y1="7.62" x2="-7.62" y2="7.62" width="0.254" layer="94"/>
+<wire x1="-7.62" y1="7.62" x2="-7.62" y2="-10.16" width="0.254" layer="94"/>
+<text x="-7.62" y="8.6" size="1.778" layer="95">&gt;NAME</text>
+<text x="-7.62" y="-12.7" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="LV1" x="-12.7" y="5.08" visible="pin" length="middle" direction="pas" rot="R0"/>
+<pin name="LV2" x="-12.7" y="2.54" visible="pin" length="middle" direction="pas" rot="R0"/>
+<pin name="LV" x="-12.7" y="0" visible="pin" length="middle" direction="pas" rot="R0"/>
+<pin name="GND@1" x="-12.7" y="-2.54" visible="pin" length="middle" direction="pas" rot="R0"/>
+<pin name="LV3" x="-12.7" y="-5.08" visible="pin" length="middle" direction="pas" rot="R0"/>
+<pin name="LV4" x="-12.7" y="-7.62" visible="pin" length="middle" direction="pas" rot="R0"/>
+<pin name="HV1" x="12.7" y="5.08" visible="pin" length="middle" direction="pas" rot="R180"/>
+<pin name="HV2" x="12.7" y="2.54" visible="pin" length="middle" direction="pas" rot="R180"/>
+<pin name="HV" x="12.7" y="0" visible="pin" length="middle" direction="pas" rot="R180"/>
+<pin name="GND@2" x="12.7" y="-2.54" visible="pin" length="middle" direction="pas" rot="R180"/>
+<pin name="HV3" x="12.7" y="-5.08" visible="pin" length="middle" direction="pas" rot="R180"/>
+<pin name="HV4" x="12.7" y="-7.62" visible="pin" length="middle" direction="pas" rot="R180"/>
 </symbol>
 <symbol name="AC-2">
 <wire x1="-2.54" y1="-5.08" x2="5.08" y2="-5.08" width="0.254" layer="94"/>
@@ -446,25 +444,21 @@
 <connect gate="G$1" pin="SW1" pad="2"/>
 <connect gate="G$1" pin="SW2" pad="3"/>
 </connects><technologies><technology name=""/></technologies></device></devices></deviceset>
-<deviceset name="SHIFTER-LV" prefix="J" uservalue="yes"><description>BSS138 level shifter, low side (SparkFun BOB-12009 order). Check your module.</description>
-<gates><gate name="G$1" symbol="SHIFTER-LV" x="0" y="0"/></gates>
-<devices><device name="" package="PINHD-1X6"><connects>
+<deviceset name="BSS138-4CH" prefix="U" uservalue="yes"><description>4-channel BSS138 bidirectional level shifter module (LV1-4 / HV1-4)</description>
+<gates><gate name="G$1" symbol="BSS138-4CH" x="0" y="0"/></gates>
+<devices><device name="" package="BSS138-4CH-MODULE"><connects>
 <connect gate="G$1" pin="LV1" pad="1"/>
 <connect gate="G$1" pin="LV2" pad="2"/>
 <connect gate="G$1" pin="LV" pad="3"/>
-<connect gate="G$1" pin="GND" pad="4"/>
+<connect gate="G$1" pin="GND@1" pad="4"/>
 <connect gate="G$1" pin="LV3" pad="5"/>
 <connect gate="G$1" pin="LV4" pad="6"/>
-</connects><technologies><technology name=""/></technologies></device></devices></deviceset>
-<deviceset name="SHIFTER-HV" prefix="J" uservalue="yes"><description>BSS138 level shifter, high side (SparkFun BOB-12009 order). Check your module.</description>
-<gates><gate name="G$1" symbol="SHIFTER-HV" x="0" y="0"/></gates>
-<devices><device name="" package="PINHD-1X6"><connects>
-<connect gate="G$1" pin="HV1" pad="1"/>
-<connect gate="G$1" pin="HV2" pad="2"/>
-<connect gate="G$1" pin="HV" pad="3"/>
-<connect gate="G$1" pin="GND" pad="4"/>
-<connect gate="G$1" pin="HV3" pad="5"/>
-<connect gate="G$1" pin="HV4" pad="6"/>
+<connect gate="G$1" pin="HV1" pad="7"/>
+<connect gate="G$1" pin="HV2" pad="8"/>
+<connect gate="G$1" pin="HV" pad="9"/>
+<connect gate="G$1" pin="GND@2" pad="10"/>
+<connect gate="G$1" pin="HV3" pad="11"/>
+<connect gate="G$1" pin="HV4" pad="12"/>
 </connects><technologies><technology name=""/></technologies></device></devices></deviceset>
 <deviceset name="AC-2" prefix="J" uservalue="yes"><description>Mains L/N screw terminal</description>
 <gates><gate name="G$1" symbol="AC-2" x="0" y="0"/></gates>
@@ -510,8 +504,7 @@
 <part name="J2" library="evcharger" deviceset="PZEM-TTL" device="" value="PZEM1"/>
 <part name="J3" library="evcharger" deviceset="PZEM-TTL" device="" value="PZEM2"/>
 <part name="J4" library="evcharger" deviceset="LCD-I2C" device="" value="LCD"/>
-<part name="J8" library="evcharger" deviceset="SHIFTER-LV" device="" value="SHIFTER-LV"/>
-<part name="J9" library="evcharger" deviceset="SHIFTER-HV" device="" value="SHIFTER-HV"/>
+<part name="U2" library="evcharger" deviceset="BSS138-4CH" device="" value="BSS138 LEVEL SHIFTER"/>
 </parts>
 <sheets><sheet><plain>
 <text x="20.32" y="190.5" size="3.81" layer="97">DUAL EV CHARGER CONTROLLER</text>
@@ -533,8 +526,7 @@
 <instance part="J2" gate="G$1" x="33.02" y="50.8"/>
 <instance part="J3" gate="G$1" x="71.12" y="50.8"/>
 <instance part="J4" gate="G$1" x="109.22" y="50.8"/>
-<instance part="J8" gate="G$1" x="149.86" y="50.8"/>
-<instance part="J9" gate="G$1" x="190.5" y="50.8"/>
+<instance part="U2" gate="G$1" x="165.1" y="50.8"/>
 </instances><busses/><nets>
 <net name="AC_L" class="1">
 <segment>
@@ -629,9 +621,9 @@
 <label x="38.1" y="106.68" size="1.27" layer="95" rot="R180"/>
 </segment>
 <segment>
-<pinref part="J9" gate="G$1" pin="HV"/>
-<wire x1="185.42" y1="50.8" x2="177.8" y2="50.8" width="0.1524" layer="91"/>
-<label x="177.8" y="50.8" size="1.27" layer="95" rot="R180"/>
+<pinref part="U2" gate="G$1" pin="HV"/>
+<wire x1="177.8" y1="50.8" x2="185.42" y2="50.8" width="0.1524" layer="91"/>
+<label x="185.42" y="50.8" size="1.27" layer="95" rot="R0"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -686,14 +678,14 @@
 <label x="38.1" y="86.36" size="1.27" layer="95" rot="R180"/>
 </segment>
 <segment>
-<pinref part="J8" gate="G$1" pin="GND"/>
-<wire x1="144.78" y1="48.26" x2="137.16" y2="48.26" width="0.1524" layer="91"/>
-<label x="137.16" y="48.26" size="1.27" layer="95" rot="R180"/>
+<pinref part="U2" gate="G$1" pin="GND@1"/>
+<wire x1="152.4" y1="48.26" x2="144.78" y2="48.26" width="0.1524" layer="91"/>
+<label x="144.78" y="48.26" size="1.27" layer="95" rot="R180"/>
 </segment>
 <segment>
-<pinref part="J9" gate="G$1" pin="GND"/>
-<wire x1="185.42" y1="48.26" x2="177.8" y2="48.26" width="0.1524" layer="91"/>
-<label x="177.8" y="48.26" size="1.27" layer="95" rot="R180"/>
+<pinref part="U2" gate="G$1" pin="GND@2"/>
+<wire x1="177.8" y1="48.26" x2="185.42" y2="48.26" width="0.1524" layer="91"/>
+<label x="185.42" y="48.26" size="1.27" layer="95" rot="R0"/>
 </segment>
 </net>
 <net name="+3V3" class="0">
@@ -708,9 +700,9 @@
 <label x="167.64" y="116.84" size="1.27" layer="95" rot="R180"/>
 </segment>
 <segment>
-<pinref part="J8" gate="G$1" pin="LV"/>
-<wire x1="144.78" y1="50.8" x2="137.16" y2="50.8" width="0.1524" layer="91"/>
-<label x="137.16" y="50.8" size="1.27" layer="95" rot="R180"/>
+<pinref part="U2" gate="G$1" pin="LV"/>
+<wire x1="152.4" y1="50.8" x2="144.78" y2="50.8" width="0.1524" layer="91"/>
+<label x="144.78" y="50.8" size="1.27" layer="95" rot="R180"/>
 </segment>
 </net>
 <net name="PZEM_TX" class="0">
@@ -831,9 +823,9 @@
 <label x="149.86" y="119.38" size="1.27" layer="95" rot="R0"/>
 </segment>
 <segment>
-<pinref part="J8" gate="G$1" pin="LV1"/>
-<wire x1="144.78" y1="55.88" x2="137.16" y2="55.88" width="0.1524" layer="91"/>
-<label x="137.16" y="55.88" size="1.27" layer="95" rot="R180"/>
+<pinref part="U2" gate="G$1" pin="LV1"/>
+<wire x1="152.4" y1="55.88" x2="144.78" y2="55.88" width="0.1524" layer="91"/>
+<label x="144.78" y="55.88" size="1.27" layer="95" rot="R180"/>
 </segment>
 </net>
 <net name="SCL_3V3" class="0">
@@ -843,16 +835,16 @@
 <label x="149.86" y="121.92" size="1.27" layer="95" rot="R0"/>
 </segment>
 <segment>
-<pinref part="J8" gate="G$1" pin="LV2"/>
-<wire x1="144.78" y1="53.34" x2="137.16" y2="53.34" width="0.1524" layer="91"/>
-<label x="137.16" y="53.34" size="1.27" layer="95" rot="R180"/>
+<pinref part="U2" gate="G$1" pin="LV2"/>
+<wire x1="152.4" y1="53.34" x2="144.78" y2="53.34" width="0.1524" layer="91"/>
+<label x="144.78" y="53.34" size="1.27" layer="95" rot="R180"/>
 </segment>
 </net>
 <net name="SDA_5V" class="0">
 <segment>
-<pinref part="J9" gate="G$1" pin="HV1"/>
-<wire x1="185.42" y1="55.88" x2="177.8" y2="55.88" width="0.1524" layer="91"/>
-<label x="177.8" y="55.88" size="1.27" layer="95" rot="R180"/>
+<pinref part="U2" gate="G$1" pin="HV1"/>
+<wire x1="177.8" y1="55.88" x2="185.42" y2="55.88" width="0.1524" layer="91"/>
+<label x="185.42" y="55.88" size="1.27" layer="95" rot="R0"/>
 </segment>
 <segment>
 <pinref part="J4" gate="G$1" pin="SDA"/>
@@ -862,9 +854,9 @@
 </net>
 <net name="SCL_5V" class="0">
 <segment>
-<pinref part="J9" gate="G$1" pin="HV2"/>
-<wire x1="185.42" y1="53.34" x2="177.8" y2="53.34" width="0.1524" layer="91"/>
-<label x="177.8" y="53.34" size="1.27" layer="95" rot="R180"/>
+<pinref part="U2" gate="G$1" pin="HV2"/>
+<wire x1="177.8" y1="53.34" x2="185.42" y2="53.34" width="0.1524" layer="91"/>
+<label x="185.42" y="53.34" size="1.27" layer="95" rot="R0"/>
 </segment>
 <segment>
 <pinref part="J4" gate="G$1" pin="SCL"/>

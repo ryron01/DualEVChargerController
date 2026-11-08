@@ -170,7 +170,7 @@ Two earlier attempts failed for reasons worth knowing:
 
 ## PCB schematic
 
-[`hardware/ev-charger-controller.sch`](hardware/ev-charger-controller.sch) is an EAGLE schematic for a carrier board that matches the bench build. The modules (ESP32 DevKitC, PZEMs, relay modules, LCD backpack, level shifter) plug in through headers. The board carries mains only for the HLK-PM01 and the fused PZEM voltage tap; relay load wiring, outlets and CTs stay off-board on 12 AWG.
+[`hardware/ev-charger-controller.sch`](hardware/ev-charger-controller.sch) is an EAGLE schematic for a carrier board that matches the bench build. The modules (ESP32 DevKitC, PZEMs, relay modules, LCD backpack, level shifter) plug in or connect through headers. The board carries mains only for the HLK-PM01 and the fused PZEM voltage tap; relay load wiring, outlets and CTs stay off-board on 12 AWG.
 
 ![Schematic preview](hardware/schematic-preview.png)
 
@@ -180,7 +180,7 @@ Check these against the real parts before laying out or ordering a board:
 
 - **ESP32 footprint.** 2 × 19 pins at 2.54 mm with the rows 25.4 mm apart, from the SnapEDA DevKitC V4 part. 38-pin clones (including CH340K boards with an external antenna) don't all use the same row spacing, so measure yours.
 - **HLK-PM01 footprint.** Pad positions are from the SnapEDA part: AC pins 5.0 mm apart at one end, −Vo/+Vo 15.4 mm apart at the other.
-- **Level shifter pinout.** The two 1 × 6 headers follow SparkFun BOB-12009 order (LV1, LV2, LV, GND, LV3, LV4 and the HV equivalents). Generic boards differ; match your module.
+- **Level shifter footprint.** U2 is the 4-channel BSS138 module as one part: two rows of six at 2.54 mm, each row ordered 1, 2, V, GND, 3, 4 with HV*n* across from LV*n*, mounted component side up. The 10.16 mm row spacing is estimated from a photo, so measure your module.
 - **Mains.** AC_L, AC_L_F and AC_N are in the `mains` net class: 0.6 mm traces, 2.5 mm between mains nets and 6 mm to everything else. Mains connectors are 5.08 mm screw terminals and the fuse is a 1 A time-lag TR5.
 
 The schematic is generated and checked by the scripts in [`tools/schematic`](tools/schematic).

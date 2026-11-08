@@ -54,6 +54,18 @@ def esp_symbol():
     return pins, body, (-10.16, 26.4), (-10.16, -28.0)
 
 
+SHIFT_LV = ["LV1", "LV2", "LV", "GND@1", "LV3", "LV4"]
+SHIFT_HV = ["HV1", "HV2", "HV", "GND@2", "HV3", "HV4"]
+SHIFT_ROW_SPACING = 10.16  # mm between the LV and HV rows; measured from a photo, confirm on the part
+
+
+def shifter_symbol():
+    pins = [(nm, -12.7, 5.08 - i * G, "R0", "middle", "pas") for i, nm in enumerate(SHIFT_LV)]
+    pins += [(nm, 12.7, 5.08 - i * G, "R180", "middle", "pas") for i, nm in enumerate(SHIFT_HV)]
+    body = [(-7.62, -10.16, 7.62, -10.16), (7.62, -10.16, 7.62, 7.62), (7.62, 7.62, -7.62, 7.62), (-7.62, 7.62, -7.62, -10.16)]
+    return pins, body, (-7.62, 8.6), (-7.62, -12.7)
+
+
 def hlk_symbol():
     pins = [("AC1", -12.7, 2.54, "R0", "middle", "pas"), ("AC2", -12.7, -2.54, "R0", "middle", "pas"),
             ("+VO", 12.7, 2.54, "R180", "middle", "pas"), ("-VO", 12.7, -2.54, "R180", "middle", "pas")]
@@ -68,8 +80,7 @@ SYMBOLS = {
     "RELAY-IN": conn_symbol(["DC+", "DC-", "IN"]),
     "LCD-I2C": conn_symbol(["GND", "VCC", "SDA", "SCL"]),
     "TOGGLE": conn_symbol(["GND", "SW1", "SW2"]),
-    "SHIFTER-LV": conn_symbol(["LV1", "LV2", "LV", "GND", "LV3", "LV4"]),
-    "SHIFTER-HV": conn_symbol(["HV1", "HV2", "HV", "GND", "HV3", "HV4"]),
+    "BSS138-4CH": shifter_symbol(),
     "AC-2": conn_symbol(["L", "N"]),
     "FUSE": two_pin_symbol("1", "2"),
     "RESISTOR": two_pin_symbol("1", "2"),
@@ -104,6 +115,15 @@ def hlk_pkg():
     return pads, silk
 
 
+def shifter_pkg():
+    # top view, module component side up: LV row at -y, HV row at +y, channel 1 on the left
+    h = SHIFT_ROW_SPACING / 2
+    pads = [(str(i + 1), round(-6.35 + i * 2.54, 4), -h, 1.0, 1.7, "square" if i == 0 else "round") for i in range(6)]
+    pads += [(str(7 + i), round(-6.35 + i * 2.54, 4), h, 1.0, 1.7, "round") for i in range(6)]
+    silk = [(-7.75, -6.7, 7.75, -6.7), (7.75, -6.7, 7.75, 6.7), (7.75, 6.7, -7.75, 6.7), (-7.75, 6.7, -7.75, -6.7)]
+    return pads, silk
+
+
 def term_pkg():
     pads = [("1", -2.54, 0, 1.3, 2.6, "square"), ("2", 2.54, 0, 1.3, 2.6, "round")]
     silk = [(-5.08, -3.8, 5.08, -3.8), (5.08, -3.8, 5.08, 3.8), (5.08, 3.8, -5.08, 3.8), (-5.08, 3.8, -5.08, -3.8)]
@@ -132,7 +152,8 @@ PACKAGES = {
     "CONV_HLK-PM01": (*hlk_pkg(), "Hi-Link HLK-PM01, pad positions from SnapEDA part."),
     "PINHD-1X3": (*header_pkg(3), "1x3 pin header, 2.54 mm"),
     "PINHD-1X4": (*header_pkg(4), "1x4 pin header, 2.54 mm"),
-    "PINHD-1X6": (*header_pkg(6), "1x6 pin header or socket, 2.54 mm"),
+    "BSS138-4CH-MODULE": (*shifter_pkg(), "4-channel BSS138 level shifter module, two rows of 6 at 2.54 mm, rows 10.16 mm apart (measure). "
+                          "Order per row: 1, 2, V, GND, 3, 4. Module mounts component side up."),
     "TERM-2-5.08": (*term_pkg(), "2-way PCB screw terminal, 5.08 mm, rated for mains"),
     "R-0207-10.16": (*axial_pkg(10.16, 3.2), "Axial resistor 0207, 10.16 mm pitch"),
     "DO-35": (*do35_pkg(), "DO-35 axial diode, 7.62 mm pitch, band = cathode"),
@@ -157,10 +178,9 @@ DEVICESETS = {
     "RELAY-IN": ("J", "RELAY-IN", "PINHD-1X3", straight(["DC+", "DC-", "IN"]), "Relay module control header: DC+ DC- IN"),
     "LCD-I2C": ("J", "LCD-I2C", "PINHD-1X4", straight(["GND", "VCC", "SDA", "SCL"]), "PCF8574 LCD backpack: GND VCC SDA SCL"),
     "TOGGLE": ("J", "TOGGLE", "PINHD-1X3", straight(["GND", "SW1", "SW2"]), "Panel switches: common GND, car 1, car 2"),
-    "SHIFTER-LV": ("J", "SHIFTER-LV", "PINHD-1X6", straight(["LV1", "LV2", "LV", "GND", "LV3", "LV4"]),
-                   "BSS138 level shifter, low side (SparkFun BOB-12009 order). Check your module."),
-    "SHIFTER-HV": ("J", "SHIFTER-HV", "PINHD-1X6", straight(["HV1", "HV2", "HV", "GND", "HV3", "HV4"]),
-                   "BSS138 level shifter, high side (SparkFun BOB-12009 order). Check your module."),
+    "BSS138-4CH": ("U", "BSS138-4CH", "BSS138-4CH-MODULE",
+                   {**{nm: str(i + 1) for i, nm in enumerate(SHIFT_LV)}, **{nm: str(7 + i) for i, nm in enumerate(SHIFT_HV)}},
+                   "4-channel BSS138 bidirectional level shifter module (LV1-4 / HV1-4)"),
     "AC-2": ("J", "AC-2", "TERM-2-5.08", {"L": "1", "N": "2"}, "Mains L/N screw terminal"),
     "FUSE": ("F", "FUSE", "FUSE-TR5", {"1": "1", "2": "2"}, "TR5 fuse, 1 A time-lag, 250 V"),
     "RESISTOR": ("R", "RESISTOR", "R-0207-10.16", {"1": "1", "2": "2"}, "Axial resistor"),
@@ -184,8 +204,7 @@ PARTS = [  # name, deviceset, value, x, y
     ("J2", "PZEM-TTL", "PZEM1", 33.02, 50.8),
     ("J3", "PZEM-TTL", "PZEM2", 71.12, 50.8),
     ("J4", "LCD-I2C", "LCD", 109.22, 50.8),
-    ("J8", "SHIFTER-LV", "SHIFTER-LV", 149.86, 50.8),
-    ("J9", "SHIFTER-HV", "SHIFTER-HV", 190.5, 50.8),
+    ("U2", "BSS138-4CH", "BSS138 LEVEL SHIFTER", 165.1, 50.8),
 ]
 
 NETS = {  # name -> (class, [(part, pin)])
@@ -193,10 +212,10 @@ NETS = {  # name -> (class, [(part, pin)])
     "AC_L_F": (1, [("F1", "2"), ("PS1", "AC1"), ("J10", "L"), ("J11", "L")]),
     "AC_N": (1, [("J1", "N"), ("PS1", "AC2"), ("J10", "N"), ("J11", "N")]),
     "+5V": (0, [("PS1", "+VO"), ("U1", "EXT_5V"), ("J2", "VCC"), ("J3", "VCC"), ("J4", "VCC"),
-                ("J5", "DC+"), ("J6", "DC+"), ("J9", "HV")]),
+                ("J5", "DC+"), ("J6", "DC+"), ("U2", "HV")]),
     "GND": (0, [("PS1", "-VO"), ("U1", "GND1"), ("U1", "GND2"), ("U1", "GND3"), ("J2", "GND"), ("J3", "GND"),
-                ("J4", "GND"), ("J5", "DC-"), ("J6", "DC-"), ("J7", "GND"), ("J8", "GND"), ("J9", "GND")]),
-    "+3V3": (0, [("U1", "3V3"), ("R1", "1"), ("J8", "LV")]),
+                ("J4", "GND"), ("J5", "DC-"), ("J6", "DC-"), ("J7", "GND"), ("U2", "GND@1"), ("U2", "GND@2")]),
+    "+3V3": (0, [("U1", "3V3"), ("R1", "1"), ("U2", "LV")]),
     "PZEM_TX": (0, [("U1", "IO16"), ("D1", "A"), ("D2", "A"), ("R1", "2")]),
     "PZEM1_TX": (0, [("J2", "TX"), ("D1", "C")]),
     "PZEM2_TX": (0, [("J3", "TX"), ("D2", "C")]),
@@ -205,10 +224,10 @@ NETS = {  # name -> (class, [(part, pin)])
     "RELAY2": (0, [("U1", "IO26"), ("J6", "IN")]),
     "SW1": (0, [("U1", "IO32"), ("J7", "SW1")]),
     "SW2": (0, [("U1", "IO33"), ("J7", "SW2")]),
-    "SDA_3V3": (0, [("U1", "IO22"), ("J8", "LV1")]),
-    "SCL_3V3": (0, [("U1", "IO23"), ("J8", "LV2")]),
-    "SDA_5V": (0, [("J9", "HV1"), ("J4", "SDA")]),
-    "SCL_5V": (0, [("J9", "HV2"), ("J4", "SCL")]),
+    "SDA_3V3": (0, [("U1", "IO22"), ("U2", "LV1")]),
+    "SCL_3V3": (0, [("U1", "IO23"), ("U2", "LV2")]),
+    "SDA_5V": (0, [("U2", "HV1"), ("J4", "SDA")]),
+    "SCL_5V": (0, [("U2", "HV2"), ("J4", "SCL")]),
 }
 
 STUB = 3 * G  # 7.62 mm

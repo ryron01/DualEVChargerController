@@ -8,10 +8,10 @@ EXPECTED = {
     "AC_L": {"J1.L", "F1.1"},
     "AC_L_F": {"F1.2", "PS1.AC1", "J10.L", "J11.L"},
     "AC_N": {"J1.N", "PS1.AC2", "J10.N", "J11.N"},
-    "+5V": {"PS1.+VO", "U1.EXT_5V", "J2.VCC", "J3.VCC", "J4.VCC", "J5.DC+", "J6.DC+", "J9.HV"},
+    "+5V": {"PS1.+VO", "U1.EXT_5V", "J2.VCC", "J3.VCC", "J4.VCC", "J5.DC+", "J6.DC+", "U2.HV"},
     "GND": {"PS1.-VO", "U1.GND1", "U1.GND2", "U1.GND3", "J2.GND", "J3.GND", "J4.GND", "J5.DC-", "J6.DC-",
-            "J7.GND", "J8.GND", "J9.GND"},
-    "+3V3": {"U1.3V3", "R1.1", "J8.LV"},
+            "J7.GND", "U2.GND@1", "U2.GND@2"},
+    "+3V3": {"U1.3V3", "R1.1", "U2.LV"},
     "PZEM_TX": {"U1.IO16", "D1.A", "D2.A", "R1.2"},       # GPIO16 = UART RX
     "PZEM1_TX": {"J2.TX", "D1.C"},                         # cathode toward PZEM
     "PZEM2_TX": {"J3.TX", "D2.C"},
@@ -20,10 +20,10 @@ EXPECTED = {
     "RELAY2": {"U1.IO26", "J6.IN"},
     "SW1": {"U1.IO32", "J7.SW1"},
     "SW2": {"U1.IO33", "J7.SW2"},
-    "SDA_3V3": {"U1.IO22", "J8.LV1"},
-    "SCL_3V3": {"U1.IO23", "J8.LV2"},
-    "SDA_5V": {"J9.HV1", "J4.SDA"},
-    "SCL_5V": {"J9.HV2", "J4.SCL"},
+    "SDA_3V3": {"U1.IO22", "U2.LV1"},
+    "SCL_3V3": {"U1.IO23", "U2.LV2"},
+    "SDA_5V": {"U2.HV1", "J4.SDA"},
+    "SCL_5V": {"U2.HV2", "J4.SCL"},
 }
 MAINS = {"AC_L", "AC_L_F", "AC_N"}
 # physical pad expectations from the SnapEDA parts read out of Fusion
@@ -32,7 +32,9 @@ PAD_EXPECT = {("HLK-PM01", "AC1"): "1", ("HLK-PM01", "AC2"): "2", ("HLK-PM01", "
               ("ESP32-DEVKITC", "IO16"): "27", ("ESP32-DEVKITC", "IO17"): "28", ("ESP32-DEVKITC", "IO22"): "36",
               ("ESP32-DEVKITC", "IO23"): "37", ("ESP32-DEVKITC", "IO25"): "9", ("ESP32-DEVKITC", "IO26"): "10",
               ("ESP32-DEVKITC", "IO32"): "7", ("ESP32-DEVKITC", "IO33"): "8", ("ESP32-DEVKITC", "GND2"): "32",
-              ("ESP32-DEVKITC", "GND3"): "38"}
+              ("ESP32-DEVKITC", "GND3"): "38",
+              ("BSS138-4CH", "LV1"): "1", ("BSS138-4CH", "LV"): "3", ("BSS138-4CH", "GND@1"): "4",
+              ("BSS138-4CH", "HV1"): "7", ("BSS138-4CH", "HV"): "9", ("BSS138-4CH", "GND@2"): "10"}
 
 fails = []
 
@@ -70,6 +72,14 @@ for dname, ds in devsets.items():
     for (d, pin), pad in PAD_EXPECT.items():
         if d == dname and conns.get(pin) != pad:
             fail(f"{dname}.{pin} maps to pad {conns.get(pin)}, expected {pad}")
+
+# level shifter: each LV pad must sit directly across from its HV pad
+ds = devsets["BSS138-4CH"]; dev = ds.find("devices/device")
+conns = {c.get("pin"): c.get("pad") for c in dev.findall("connects/connect")}
+padxy = {p.get("name"): (float(p.get("x")), float(p.get("y"))) for p in packages[dev.get("package")].findall("pad")}
+for lv, hv in [("LV1", "HV1"), ("LV2", "HV2"), ("LV", "HV"), ("GND@1", "GND@2"), ("LV3", "HV3"), ("LV4", "HV4")]:
+    if abs(padxy[conns[lv]][0] - padxy[conns[hv]][0]) > 1e-6:
+        fail(f"level shifter {lv} is not across from {hv}")
 
 # placed pin positions
 parts = {p.get("name"): p for p in root.find(".//parts")}
