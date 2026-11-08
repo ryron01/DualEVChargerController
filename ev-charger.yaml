@@ -45,11 +45,9 @@ display:
       - position: 2
         data: [0x00, 0x00, 0x04, 0x0A, 0x11, 0x04, 0x0A, 0x11]  # \x02 chg2
       - position: 3
-        data: [0x04, 0x0A, 0x11, 0x04, 0x0A, 0x11, 0x00, 0x00]  # \x01 chg3
+        data: [0x04, 0x0A, 0x11, 0x04, 0x0A, 0x11, 0x00, 0x00]  # \x03 chg3
       - position: 4
-        data: [0x04, 0x0A, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00]  # \x01 chg4
-      - position: 5
-        data: [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]  # \x05 chg5
+        data: [0x04, 0x0A, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00]  # \x04 chg4
       - position: 6
         data: [0x0E, 0x11, 0x11, 0x1F, 0x1B, 0x1B, 0x1F, 0x00]  # \x06 lock
       - position: 7
@@ -58,14 +56,13 @@ display:
     lambda: |-
       uint32_t phase = (millis() / 300) % 5;
 
-      // Cycle through chg1-chg5 (positions 1-5 = \x01-\x05)
+      // Cycle through chg1-chg4 (positions 1-4 = \x01-\x04); phase 4 repeats chg1
       const char* chg;
       switch(phase) {
         case 0: chg = "\x01"; break;  // chg1
         case 1: chg = "\x02"; break;  // chg2
         case 2: chg = "\x03"; break;  // chg3
         case 3: chg = "\x04"; break;  // chg4
-        //case 4: chg = "\x05"; break;  // chg5
         default: chg = "\x01"; break;
       }
 
