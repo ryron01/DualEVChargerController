@@ -185,6 +185,29 @@ Check these against the real parts before laying out or ordering a board:
 
 The schematic is generated and checked by the scripts in [`tools/schematic`](tools/schematic).
 
+## Perfboard build
+
+[`hardware/perfboard/perfboard-guide.html`](hardware/perfboard/perfboard-guide.html) is a soldering guide for building the controller on a 24 × 30 hole (70 × 90 mm) plain perfboard. Open it in a browser. It shows the parts by hole position (columns A–X, rows 1–30), a mirrored view of the wiring side, and a wire list you can tick off. The layout comes from the same netlist as the schematic and is checked by `tools/schematic/verify_perfboard.py`.
+
+| Top, component side | Bottom, wiring side (mirrored) |
+| --- | --- |
+| ![Perfboard top](hardware/perfboard/perfboard-top.svg) | ![Perfboard bottom](hardware/perfboard/perfboard-bottom.svg) |
+
+- **Mains zone.** Columns A–I, rows 1–16 carry 120 V. Use insulated wire rated 300 V or more there. Every low-voltage hole is at least 10 mm from any mains hole.
+- **Wiring.** Every connection is an insulated wire on the bottom. Wires may cross each other but never pass over another net's pad.
+- **Modules.** The ESP32 and the level shifter plug into female headers. The ESP32's USB end faces the left edge.
+- **HLK-PM01.** Its pins are 29.4 mm end to end and the holes 30.5 mm apart, so bend each pin out about 0.5 mm.
+
+To regenerate after a placement or wiring change:
+
+```sh
+cd tools/schematic
+python perfboard.py ../../hardware/perfboard/layout.json
+python verify_perfboard.py ../../hardware/perfboard/layout.json
+python render_perfboard.py ../../hardware/perfboard/layout.json ../../hardware/perfboard
+python make_guide.py ../../hardware/perfboard
+```
+
 ## Bill of materials
 
 | Qty | Part | Notes |

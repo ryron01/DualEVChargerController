@@ -1,0 +1,1940 @@
+{
+ "board": {
+  "cols": 24,
+  "rows": 30,
+  "clearance_holes": 3.0
+ },
+ "pins": [
+  {
+   "part": "U1",
+   "pin": "3V3",
+   "hole": "U20",
+   "x": 20,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "EN",
+   "hole": "T20",
+   "x": 19,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "SENSOR_VP",
+   "hole": "S20",
+   "x": 18,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "SENSOR_VN",
+   "hole": "R20",
+   "x": 17,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "IO34",
+   "hole": "Q20",
+   "x": 16,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "IO35",
+   "hole": "P20",
+   "x": 15,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "IO32",
+   "hole": "O20",
+   "x": 14,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "IO33",
+   "hole": "N20",
+   "x": 13,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "IO25",
+   "hole": "M20",
+   "x": 12,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "IO26",
+   "hole": "L20",
+   "x": 11,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "IO27",
+   "hole": "K20",
+   "x": 10,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "IO14",
+   "hole": "J20",
+   "x": 9,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "IO12",
+   "hole": "I20",
+   "x": 8,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "GND1",
+   "hole": "H20",
+   "x": 7,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "IO13",
+   "hole": "G20",
+   "x": 6,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "SD2",
+   "hole": "F20",
+   "x": 5,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "SD3",
+   "hole": "E20",
+   "x": 4,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "CMD",
+   "hole": "D20",
+   "x": 3,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "EXT_5V",
+   "hole": "C20",
+   "x": 2,
+   "y": 19
+  },
+  {
+   "part": "U1",
+   "pin": "CLK",
+   "hole": "C30",
+   "x": 2,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "SD0",
+   "hole": "D30",
+   "x": 3,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "SD1",
+   "hole": "E30",
+   "x": 4,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "IO15",
+   "hole": "F30",
+   "x": 5,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "IO2",
+   "hole": "G30",
+   "x": 6,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "IO0",
+   "hole": "H30",
+   "x": 7,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "IO4",
+   "hole": "I30",
+   "x": 8,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "IO16",
+   "hole": "J30",
+   "x": 9,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "IO17",
+   "hole": "K30",
+   "x": 10,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "IO5",
+   "hole": "L30",
+   "x": 11,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "IO18",
+   "hole": "M30",
+   "x": 12,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "IO19",
+   "hole": "N30",
+   "x": 13,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "GND2",
+   "hole": "O30",
+   "x": 14,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "IO21",
+   "hole": "P30",
+   "x": 15,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "RXD0",
+   "hole": "Q30",
+   "x": 16,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "TXD0",
+   "hole": "R30",
+   "x": 17,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "IO22",
+   "hole": "S30",
+   "x": 18,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "IO23",
+   "hole": "T30",
+   "x": 19,
+   "y": 29
+  },
+  {
+   "part": "U1",
+   "pin": "GND3",
+   "hole": "U30",
+   "x": 20,
+   "y": 29
+  },
+  {
+   "part": "J1",
+   "pin": "L",
+   "hole": "B2",
+   "x": 1,
+   "y": 1
+  },
+  {
+   "part": "J1",
+   "pin": "N",
+   "hole": "B4",
+   "x": 1,
+   "y": 3
+  },
+  {
+   "part": "F1",
+   "pin": "1",
+   "hole": "F2",
+   "x": 5,
+   "y": 1
+  },
+  {
+   "part": "F1",
+   "pin": "2",
+   "hole": "F4",
+   "x": 5,
+   "y": 3
+  },
+  {
+   "part": "J10",
+   "pin": "L",
+   "hole": "B7",
+   "x": 1,
+   "y": 6
+  },
+  {
+   "part": "J10",
+   "pin": "N",
+   "hole": "B9",
+   "x": 1,
+   "y": 8
+  },
+  {
+   "part": "J11",
+   "pin": "L",
+   "hole": "B12",
+   "x": 1,
+   "y": 11
+  },
+  {
+   "part": "J11",
+   "pin": "N",
+   "hole": "B14",
+   "x": 1,
+   "y": 13
+  },
+  {
+   "part": "PS1",
+   "pin": "AC1",
+   "hole": "I4",
+   "x": 8,
+   "y": 3
+  },
+  {
+   "part": "PS1",
+   "pin": "AC2",
+   "hole": "I6",
+   "x": 8,
+   "y": 5
+  },
+  {
+   "part": "PS1",
+   "pin": "-VO",
+   "hole": "U2",
+   "x": 20,
+   "y": 1
+  },
+  {
+   "part": "PS1",
+   "pin": "+VO",
+   "hole": "U8",
+   "x": 20,
+   "y": 7
+  },
+  {
+   "part": "J6",
+   "pin": "DC+",
+   "hole": "G18",
+   "x": 6,
+   "y": 17
+  },
+  {
+   "part": "J6",
+   "pin": "DC-",
+   "hole": "H18",
+   "x": 7,
+   "y": 17
+  },
+  {
+   "part": "J6",
+   "pin": "IN",
+   "hole": "I18",
+   "x": 8,
+   "y": 17
+  },
+  {
+   "part": "J5",
+   "pin": "DC+",
+   "hole": "K18",
+   "x": 10,
+   "y": 17
+  },
+  {
+   "part": "J5",
+   "pin": "DC-",
+   "hole": "L18",
+   "x": 11,
+   "y": 17
+  },
+  {
+   "part": "J5",
+   "pin": "IN",
+   "hole": "M18",
+   "x": 12,
+   "y": 17
+  },
+  {
+   "part": "J7",
+   "pin": "SW2",
+   "hole": "N18",
+   "x": 13,
+   "y": 17
+  },
+  {
+   "part": "J7",
+   "pin": "SW1",
+   "hole": "O18",
+   "x": 14,
+   "y": 17
+  },
+  {
+   "part": "J7",
+   "pin": "GND",
+   "hole": "P18",
+   "x": 15,
+   "y": 17
+  },
+  {
+   "part": "J4",
+   "pin": "GND",
+   "hole": "N10",
+   "x": 13,
+   "y": 9
+  },
+  {
+   "part": "J4",
+   "pin": "VCC",
+   "hole": "N11",
+   "x": 13,
+   "y": 10
+  },
+  {
+   "part": "J4",
+   "pin": "SDA",
+   "hole": "N12",
+   "x": 13,
+   "y": 11
+  },
+  {
+   "part": "J4",
+   "pin": "SCL",
+   "hole": "N13",
+   "x": 13,
+   "y": 12
+  },
+  {
+   "part": "J2",
+   "pin": "VCC",
+   "hole": "X10",
+   "x": 23,
+   "y": 9
+  },
+  {
+   "part": "J2",
+   "pin": "RX",
+   "hole": "X11",
+   "x": 23,
+   "y": 10
+  },
+  {
+   "part": "J2",
+   "pin": "TX",
+   "hole": "X12",
+   "x": 23,
+   "y": 11
+  },
+  {
+   "part": "J2",
+   "pin": "GND",
+   "hole": "X13",
+   "x": 23,
+   "y": 12
+  },
+  {
+   "part": "J3",
+   "pin": "VCC",
+   "hole": "X15",
+   "x": 23,
+   "y": 14
+  },
+  {
+   "part": "J3",
+   "pin": "RX",
+   "hole": "X16",
+   "x": 23,
+   "y": 15
+  },
+  {
+   "part": "J3",
+   "pin": "TX",
+   "hole": "X17",
+   "x": 23,
+   "y": 16
+  },
+  {
+   "part": "J3",
+   "pin": "GND",
+   "hole": "X18",
+   "x": 23,
+   "y": 17
+  },
+  {
+   "part": "D1",
+   "pin": "C",
+   "hole": "W12",
+   "x": 22,
+   "y": 11
+  },
+  {
+   "part": "D1",
+   "pin": "A",
+   "hole": "W15",
+   "x": 22,
+   "y": 14
+  },
+  {
+   "part": "D2",
+   "pin": "C",
+   "hole": "W17",
+   "x": 22,
+   "y": 16
+  },
+  {
+   "part": "D2",
+   "pin": "A",
+   "hole": "W20",
+   "x": 22,
+   "y": 19
+  },
+  {
+   "part": "R1",
+   "pin": "2",
+   "hole": "V15",
+   "x": 21,
+   "y": 14
+  },
+  {
+   "part": "R1",
+   "pin": "1",
+   "hole": "V19",
+   "x": 21,
+   "y": 18
+  },
+  {
+   "part": "U2",
+   "pin": "HV1",
+   "hole": "P10",
+   "x": 15,
+   "y": 9
+  },
+  {
+   "part": "U2",
+   "pin": "HV2",
+   "hole": "Q10",
+   "x": 16,
+   "y": 9
+  },
+  {
+   "part": "U2",
+   "pin": "HV",
+   "hole": "R10",
+   "x": 17,
+   "y": 9
+  },
+  {
+   "part": "U2",
+   "pin": "GND@2",
+   "hole": "S10",
+   "x": 18,
+   "y": 9
+  },
+  {
+   "part": "U2",
+   "pin": "HV3",
+   "hole": "T10",
+   "x": 19,
+   "y": 9
+  },
+  {
+   "part": "U2",
+   "pin": "HV4",
+   "hole": "U10",
+   "x": 20,
+   "y": 9
+  },
+  {
+   "part": "U2",
+   "pin": "LV1",
+   "hole": "P14",
+   "x": 15,
+   "y": 13
+  },
+  {
+   "part": "U2",
+   "pin": "LV2",
+   "hole": "Q14",
+   "x": 16,
+   "y": 13
+  },
+  {
+   "part": "U2",
+   "pin": "LV",
+   "hole": "R14",
+   "x": 17,
+   "y": 13
+  },
+  {
+   "part": "U2",
+   "pin": "GND@1",
+   "hole": "S14",
+   "x": 18,
+   "y": 13
+  },
+  {
+   "part": "U2",
+   "pin": "LV3",
+   "hole": "T14",
+   "x": 19,
+   "y": 13
+  },
+  {
+   "part": "U2",
+   "pin": "LV4",
+   "hole": "U14",
+   "x": 20,
+   "y": 13
+  }
+ ],
+ "bodies": {
+  "U1": {
+   "x1": 0.3,
+   "y1": 18.4,
+   "x2": 23.9,
+   "y2": 29.6,
+   "label": "ESP32 DevKitC on female headers",
+   "under_module": false
+  },
+  "PS1": {
+   "x1": 7.3,
+   "y1": 0.0,
+   "x2": 20.7,
+   "y2": 7.95,
+   "label": "HLK-PM01",
+   "under_module": false
+  },
+  "U2": {
+   "x1": 14.45,
+   "y1": 8.4,
+   "x2": 20.55,
+   "y2": 13.6,
+   "label": "Level shifter",
+   "under_module": false
+  },
+  "F1": {
+   "x1": 3.33,
+   "y1": 0.33,
+   "x2": 6.67,
+   "y2": 3.67,
+   "label": "Fuse 1 A T",
+   "under_module": false
+  },
+  "J1": {
+   "x1": -0.5,
+   "y1": 0.0,
+   "x2": 2.5,
+   "y2": 4.0,
+   "label": "AC in",
+   "under_module": false
+  },
+  "J10": {
+   "x1": -0.5,
+   "y1": 5.0,
+   "x2": 2.5,
+   "y2": 9.0,
+   "label": "PZEM1 AC",
+   "under_module": false
+  },
+  "J11": {
+   "x1": -0.5,
+   "y1": 10.0,
+   "x2": 2.5,
+   "y2": 14.0,
+   "label": "PZEM2 AC",
+   "under_module": false
+  },
+  "J6": {
+   "x1": 5.5,
+   "y1": 16.5,
+   "x2": 8.5,
+   "y2": 17.5,
+   "label": "Relay 2",
+   "under_module": false
+  },
+  "J5": {
+   "x1": 9.5,
+   "y1": 16.5,
+   "x2": 12.5,
+   "y2": 17.5,
+   "label": "Relay 1",
+   "under_module": false
+  },
+  "J7": {
+   "x1": 12.5,
+   "y1": 16.5,
+   "x2": 15.5,
+   "y2": 17.5,
+   "label": "Switches",
+   "under_module": false
+  },
+  "J4": {
+   "x1": 12.5,
+   "y1": 8.5,
+   "x2": 13.5,
+   "y2": 12.5,
+   "label": "LCD",
+   "under_module": false
+  },
+  "J2": {
+   "x1": 22.5,
+   "y1": 8.5,
+   "x2": 23.5,
+   "y2": 12.5,
+   "label": "PZEM1",
+   "under_module": false
+  },
+  "J3": {
+   "x1": 22.5,
+   "y1": 13.5,
+   "x2": 23.5,
+   "y2": 17.5,
+   "label": "PZEM2",
+   "under_module": false
+  },
+  "D1": {
+   "x1": 21.6,
+   "y1": 11.7,
+   "x2": 22.4,
+   "y2": 13.3,
+   "label": "D1",
+   "under_module": false
+  },
+  "D2": {
+   "x1": 21.6,
+   "y1": 16.7,
+   "x2": 22.4,
+   "y2": 18.3,
+   "label": "D2",
+   "under_module": false
+  },
+  "R1": {
+   "x1": 20.5,
+   "y1": 14.7,
+   "x2": 21.5,
+   "y2": 17.3,
+   "label": "R1",
+   "under_module": false
+  }
+ },
+ "nets": {
+  "AC_L": {
+   "mains": true,
+   "members": [
+    "J1.L",
+    "F1.1"
+   ],
+   "wires": [
+    {
+     "from": "J1.L",
+     "to": "F1.1",
+     "from_hole": "B2",
+     "to_hole": "F2",
+     "path": [
+      [
+       1,
+       1
+      ],
+      [
+       5,
+       1
+      ]
+     ],
+     "holes": 4
+    }
+   ]
+  },
+  "AC_L_F": {
+   "mains": true,
+   "members": [
+    "F1.2",
+    "PS1.AC1",
+    "J10.L",
+    "J11.L"
+   ],
+   "wires": [
+    {
+     "from": "F1.2",
+     "to": "PS1.AC1",
+     "from_hole": "F4",
+     "to_hole": "I4",
+     "path": [
+      [
+       5,
+       3
+      ],
+      [
+       8,
+       3
+      ]
+     ],
+     "holes": 3
+    },
+    {
+     "from": "F1.2",
+     "to": "J10.L",
+     "from_hole": "F4",
+     "to_hole": "B7",
+     "path": [
+      [
+       5,
+       3
+      ],
+      [
+       5,
+       2
+      ],
+      [
+       0,
+       2
+      ],
+      [
+       0,
+       6
+      ],
+      [
+       1,
+       6
+      ]
+     ],
+     "holes": 11
+    },
+    {
+     "from": "J10.L",
+     "to": "J11.L",
+     "from_hole": "B7",
+     "to_hole": "B12",
+     "path": [
+      [
+       1,
+       6
+      ],
+      [
+       0,
+       6
+      ],
+      [
+       0,
+       11
+      ],
+      [
+       1,
+       11
+      ]
+     ],
+     "holes": 7
+    }
+   ]
+  },
+  "AC_N": {
+   "mains": true,
+   "members": [
+    "J1.N",
+    "PS1.AC2",
+    "J10.N",
+    "J11.N"
+   ],
+   "wires": [
+    {
+     "from": "J1.N",
+     "to": "J10.N",
+     "from_hole": "B4",
+     "to_hole": "B9",
+     "path": [
+      [
+       1,
+       3
+      ],
+      [
+       2,
+       3
+      ],
+      [
+       2,
+       8
+      ],
+      [
+       1,
+       8
+      ]
+     ],
+     "holes": 7
+    },
+    {
+     "from": "J10.N",
+     "to": "J11.N",
+     "from_hole": "B9",
+     "to_hole": "B14",
+     "path": [
+      [
+       1,
+       8
+      ],
+      [
+       2,
+       8
+      ],
+      [
+       2,
+       13
+      ],
+      [
+       1,
+       13
+      ]
+     ],
+     "holes": 7
+    },
+    {
+     "from": "J1.N",
+     "to": "PS1.AC2",
+     "from_hole": "B4",
+     "to_hole": "I6",
+     "path": [
+      [
+       1,
+       3
+      ],
+      [
+       1,
+       5
+      ],
+      [
+       8,
+       5
+      ]
+     ],
+     "holes": 9
+    }
+   ]
+  },
+  "+5V": {
+   "mains": false,
+   "members": [
+    "PS1.+VO",
+    "U1.EXT_5V",
+    "J2.VCC",
+    "J3.VCC",
+    "J4.VCC",
+    "J5.DC+",
+    "J6.DC+",
+    "U2.HV"
+   ],
+   "wires": [
+    {
+     "from": "PS1.+VO",
+     "to": "U2.HV",
+     "from_hole": "U8",
+     "to_hole": "R10",
+     "path": [
+      [
+       20,
+       7
+      ],
+      [
+       19,
+       7
+      ],
+      [
+       19,
+       10
+      ],
+      [
+       17,
+       10
+      ],
+      [
+       17,
+       9
+      ]
+     ],
+     "holes": 7
+    },
+    {
+     "from": "U2.HV",
+     "to": "J4.VCC",
+     "from_hole": "R10",
+     "to_hole": "N11",
+     "path": [
+      [
+       17,
+       9
+      ],
+      [
+       17,
+       10
+      ],
+      [
+       13,
+       10
+      ]
+     ],
+     "holes": 5
+    },
+    {
+     "from": "PS1.+VO",
+     "to": "J2.VCC",
+     "from_hole": "U8",
+     "to_hole": "X10",
+     "path": [
+      [
+       20,
+       7
+      ],
+      [
+       23,
+       7
+      ],
+      [
+       23,
+       9
+      ]
+     ],
+     "holes": 5
+    },
+    {
+     "from": "J2.VCC",
+     "to": "J3.VCC",
+     "from_hole": "X10",
+     "to_hole": "X15",
+     "path": [
+      [
+       23,
+       9
+      ],
+      [
+       21,
+       9
+      ],
+      [
+       21,
+       13
+      ],
+      [
+       23,
+       13
+      ],
+      [
+       23,
+       14
+      ]
+     ],
+     "holes": 9
+    },
+    {
+     "from": "J4.VCC",
+     "to": "J5.DC+",
+     "from_hole": "N11",
+     "to_hole": "K18",
+     "path": [
+      [
+       13,
+       10
+      ],
+      [
+       10,
+       10
+      ],
+      [
+       10,
+       17
+      ]
+     ],
+     "holes": 10
+    },
+    {
+     "from": "J5.DC+",
+     "to": "J6.DC+",
+     "from_hole": "K18",
+     "to_hole": "G18",
+     "path": [
+      [
+       10,
+       17
+      ],
+      [
+       10,
+       16
+      ],
+      [
+       6,
+       16
+      ],
+      [
+       6,
+       17
+      ]
+     ],
+     "holes": 6
+    },
+    {
+     "from": "J6.DC+",
+     "to": "U1.EXT_5V",
+     "from_hole": "G18",
+     "to_hole": "C20",
+     "path": [
+      [
+       6,
+       17
+      ],
+      [
+       2,
+       17
+      ],
+      [
+       2,
+       19
+      ]
+     ],
+     "holes": 6
+    }
+   ]
+  },
+  "GND": {
+   "mains": false,
+   "members": [
+    "PS1.-VO",
+    "U1.GND1",
+    "U1.GND2",
+    "U1.GND3",
+    "J2.GND",
+    "J3.GND",
+    "J4.GND",
+    "J5.DC-",
+    "J6.DC-",
+    "J7.GND",
+    "U2.GND@1",
+    "U2.GND@2"
+   ],
+   "wires": [
+    {
+     "from": "PS1.-VO",
+     "to": "U2.GND@2",
+     "from_hole": "U2",
+     "to_hole": "S10",
+     "path": [
+      [
+       20,
+       1
+      ],
+      [
+       18,
+       1
+      ],
+      [
+       18,
+       9
+      ]
+     ],
+     "holes": 10
+    },
+    {
+     "from": "U2.GND@2",
+     "to": "U2.GND@1",
+     "from_hole": "S10",
+     "to_hole": "S14",
+     "path": [
+      [
+       18,
+       9
+      ],
+      [
+       18,
+       13
+      ]
+     ],
+     "holes": 4
+    },
+    {
+     "from": "U2.GND@2",
+     "to": "J4.GND",
+     "from_hole": "S10",
+     "to_hole": "N10",
+     "path": [
+      [
+       18,
+       9
+      ],
+      [
+       18,
+       8
+      ],
+      [
+       13,
+       8
+      ],
+      [
+       13,
+       9
+      ]
+     ],
+     "holes": 7
+    },
+    {
+     "from": "U2.GND@1",
+     "to": "J2.GND",
+     "from_hole": "S14",
+     "to_hole": "X13",
+     "path": [
+      [
+       18,
+       13
+      ],
+      [
+       18,
+       12
+      ],
+      [
+       23,
+       12
+      ]
+     ],
+     "holes": 6
+    },
+    {
+     "from": "J2.GND",
+     "to": "J3.GND",
+     "from_hole": "X13",
+     "to_hole": "X18",
+     "path": [
+      [
+       23,
+       12
+      ],
+      [
+       14,
+       12
+      ],
+      [
+       14,
+       16
+      ],
+      [
+       19,
+       16
+      ],
+      [
+       19,
+       20
+      ],
+      [
+       23,
+       20
+      ],
+      [
+       23,
+       17
+      ]
+     ],
+     "holes": 29
+    },
+    {
+     "from": "U2.GND@1",
+     "to": "J7.GND",
+     "from_hole": "S14",
+     "to_hole": "P18",
+     "path": [
+      [
+       18,
+       13
+      ],
+      [
+       18,
+       12
+      ],
+      [
+       14,
+       12
+      ],
+      [
+       14,
+       16
+      ],
+      [
+       15,
+       16
+      ],
+      [
+       15,
+       17
+      ]
+     ],
+     "holes": 11
+    },
+    {
+     "from": "J7.GND",
+     "to": "J5.DC-",
+     "from_hole": "P18",
+     "to_hole": "L18",
+     "path": [
+      [
+       15,
+       17
+      ],
+      [
+       15,
+       16
+      ],
+      [
+       11,
+       16
+      ],
+      [
+       11,
+       17
+      ]
+     ],
+     "holes": 6
+    },
+    {
+     "from": "J5.DC-",
+     "to": "J6.DC-",
+     "from_hole": "L18",
+     "to_hole": "H18",
+     "path": [
+      [
+       11,
+       17
+      ],
+      [
+       11,
+       18
+      ],
+      [
+       7,
+       18
+      ],
+      [
+       7,
+       17
+      ]
+     ],
+     "holes": 6
+    },
+    {
+     "from": "J6.DC-",
+     "to": "U1.GND1",
+     "from_hole": "H18",
+     "to_hole": "H20",
+     "path": [
+      [
+       7,
+       17
+      ],
+      [
+       7,
+       19
+      ]
+     ],
+     "holes": 2
+    },
+    {
+     "from": "J7.GND",
+     "to": "U1.GND2",
+     "from_hole": "P18",
+     "to_hole": "O30",
+     "path": [
+      [
+       15,
+       17
+      ],
+      [
+       15,
+       28
+      ],
+      [
+       14,
+       28
+      ],
+      [
+       14,
+       29
+      ]
+     ],
+     "holes": 13
+    },
+    {
+     "from": "U1.GND2",
+     "to": "U1.GND3",
+     "from_hole": "O30",
+     "to_hole": "U30",
+     "path": [
+      [
+       14,
+       29
+      ],
+      [
+       14,
+       28
+      ],
+      [
+       20,
+       28
+      ],
+      [
+       20,
+       29
+      ]
+     ],
+     "holes": 8
+    }
+   ]
+  },
+  "+3V3": {
+   "mains": false,
+   "members": [
+    "U1.3V3",
+    "R1.1",
+    "U2.LV"
+   ],
+   "wires": [
+    {
+     "from": "U1.3V3",
+     "to": "R1.1",
+     "from_hole": "U20",
+     "to_hole": "V19",
+     "path": [
+      [
+       20,
+       19
+      ],
+      [
+       21,
+       19
+      ],
+      [
+       21,
+       18
+      ]
+     ],
+     "holes": 2
+    },
+    {
+     "from": "U1.3V3",
+     "to": "U2.LV",
+     "from_hole": "U20",
+     "to_hole": "R14",
+     "path": [
+      [
+       20,
+       19
+      ],
+      [
+       20,
+       14
+      ],
+      [
+       17,
+       14
+      ],
+      [
+       17,
+       13
+      ]
+     ],
+     "holes": 9
+    }
+   ]
+  },
+  "PZEM_TX": {
+   "mains": false,
+   "members": [
+    "U1.IO16",
+    "D1.A",
+    "D2.A",
+    "R1.2"
+   ],
+   "wires": [
+    {
+     "from": "U1.IO16",
+     "to": "D2.A",
+     "from_hole": "J30",
+     "to_hole": "W20",
+     "path": [
+      [
+       9,
+       29
+      ],
+      [
+       9,
+       22
+      ],
+      [
+       22,
+       22
+      ],
+      [
+       22,
+       19
+      ]
+     ],
+     "holes": 23
+    },
+    {
+     "from": "D2.A",
+     "to": "D1.A",
+     "from_hole": "W20",
+     "to_hole": "W15",
+     "path": [
+      [
+       22,
+       19
+      ],
+      [
+       22,
+       17
+      ],
+      [
+       21,
+       17
+      ],
+      [
+       21,
+       15
+      ],
+      [
+       22,
+       15
+      ],
+      [
+       22,
+       14
+      ]
+     ],
+     "holes": 7
+    },
+    {
+     "from": "D1.A",
+     "to": "R1.2",
+     "from_hole": "W15",
+     "to_hole": "V15",
+     "path": [
+      [
+       22,
+       14
+      ],
+      [
+       21,
+       14
+      ]
+     ],
+     "holes": 1
+    }
+   ]
+  },
+  "PZEM1_TX": {
+   "mains": false,
+   "members": [
+    "J2.TX",
+    "D1.C"
+   ],
+   "wires": [
+    {
+     "from": "J2.TX",
+     "to": "D1.C",
+     "from_hole": "X12",
+     "to_hole": "W12",
+     "path": [
+      [
+       23,
+       11
+      ],
+      [
+       22,
+       11
+      ]
+     ],
+     "holes": 1
+    }
+   ]
+  },
+  "PZEM2_TX": {
+   "mains": false,
+   "members": [
+    "J3.TX",
+    "D2.C"
+   ],
+   "wires": [
+    {
+     "from": "J3.TX",
+     "to": "D2.C",
+     "from_hole": "X17",
+     "to_hole": "W17",
+     "path": [
+      [
+       23,
+       16
+      ],
+      [
+       22,
+       16
+      ]
+     ],
+     "holes": 1
+    }
+   ]
+  },
+  "PZEM_RX": {
+   "mains": false,
+   "members": [
+    "U1.IO17",
+    "J2.RX",
+    "J3.RX"
+   ],
+   "wires": [
+    {
+     "from": "U1.IO17",
+     "to": "J3.RX",
+     "from_hole": "K30",
+     "to_hole": "X16",
+     "path": [
+      [
+       10,
+       29
+      ],
+      [
+       10,
+       20
+      ],
+      [
+       18,
+       20
+      ],
+      [
+       18,
+       15
+      ],
+      [
+       23,
+       15
+      ]
+     ],
+     "holes": 27
+    },
+    {
+     "from": "J3.RX",
+     "to": "J2.RX",
+     "from_hole": "X16",
+     "to_hole": "X11",
+     "path": [
+      [
+       23,
+       15
+      ],
+      [
+       20,
+       15
+      ],
+      [
+       20,
+       10
+      ],
+      [
+       23,
+       10
+      ]
+     ],
+     "holes": 11
+    }
+   ]
+  },
+  "RELAY1": {
+   "mains": false,
+   "members": [
+    "U1.IO25",
+    "J5.IN"
+   ],
+   "wires": [
+    {
+     "from": "U1.IO25",
+     "to": "J5.IN",
+     "from_hole": "M20",
+     "to_hole": "M18",
+     "path": [
+      [
+       12,
+       19
+      ],
+      [
+       12,
+       17
+      ]
+     ],
+     "holes": 2
+    }
+   ]
+  },
+  "RELAY2": {
+   "mains": false,
+   "members": [
+    "U1.IO26",
+    "J6.IN"
+   ],
+   "wires": [
+    {
+     "from": "U1.IO26",
+     "to": "J6.IN",
+     "from_hole": "L20",
+     "to_hole": "I18",
+     "path": [
+      [
+       11,
+       19
+      ],
+      [
+       9,
+       19
+      ],
+      [
+       9,
+       17
+      ],
+      [
+       8,
+       17
+      ]
+     ],
+     "holes": 5
+    }
+   ]
+  },
+  "SW1": {
+   "mains": false,
+   "members": [
+    "U1.IO32",
+    "J7.SW1"
+   ],
+   "wires": [
+    {
+     "from": "U1.IO32",
+     "to": "J7.SW1",
+     "from_hole": "O20",
+     "to_hole": "O18",
+     "path": [
+      [
+       14,
+       19
+      ],
+      [
+       14,
+       17
+      ]
+     ],
+     "holes": 2
+    }
+   ]
+  },
+  "SW2": {
+   "mains": false,
+   "members": [
+    "U1.IO33",
+    "J7.SW2"
+   ],
+   "wires": [
+    {
+     "from": "U1.IO33",
+     "to": "J7.SW2",
+     "from_hole": "N20",
+     "to_hole": "N18",
+     "path": [
+      [
+       13,
+       19
+      ],
+      [
+       13,
+       17
+      ]
+     ],
+     "holes": 2
+    }
+   ]
+  },
+  "SDA_3V3": {
+   "mains": false,
+   "members": [
+    "U1.IO22",
+    "U2.LV1"
+   ],
+   "wires": [
+    {
+     "from": "U1.IO22",
+     "to": "U2.LV1",
+     "from_hole": "S30",
+     "to_hole": "P14",
+     "path": [
+      [
+       18,
+       29
+      ],
+      [
+       18,
+       23
+      ],
+      [
+       17,
+       23
+      ],
+      [
+       17,
+       15
+      ],
+      [
+       15,
+       15
+      ],
+      [
+       15,
+       13
+      ]
+     ],
+     "holes": 19
+    }
+   ]
+  },
+  "SCL_3V3": {
+   "mains": false,
+   "members": [
+    "U1.IO23",
+    "U2.LV2"
+   ],
+   "wires": [
+    {
+     "from": "U1.IO23",
+     "to": "U2.LV2",
+     "from_hole": "T30",
+     "to_hole": "Q14",
+     "path": [
+      [
+       19,
+       29
+      ],
+      [
+       19,
+       21
+      ],
+      [
+       16,
+       21
+      ],
+      [
+       16,
+       13
+      ]
+     ],
+     "holes": 19
+    }
+   ]
+  },
+  "SDA_5V": {
+   "mains": false,
+   "members": [
+    "U2.HV1",
+    "J4.SDA"
+   ],
+   "wires": [
+    {
+     "from": "U2.HV1",
+     "to": "J4.SDA",
+     "from_hole": "P10",
+     "to_hole": "N12",
+     "path": [
+      [
+       15,
+       9
+      ],
+      [
+       15,
+       11
+      ],
+      [
+       13,
+       11
+      ]
+     ],
+     "holes": 4
+    }
+   ]
+  },
+  "SCL_5V": {
+   "mains": false,
+   "members": [
+    "U2.HV2",
+    "J4.SCL"
+   ],
+   "wires": [
+    {
+     "from": "U2.HV2",
+     "to": "J4.SCL",
+     "from_hole": "Q10",
+     "to_hole": "N13",
+     "path": [
+      [
+       16,
+       9
+      ],
+      [
+       16,
+       7
+      ],
+      [
+       12,
+       7
+      ],
+      [
+       12,
+       12
+      ],
+      [
+       13,
+       12
+      ]
+     ],
+     "holes": 12
+    }
+   ]
+  }
+ }
+}
