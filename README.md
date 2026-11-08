@@ -168,6 +168,23 @@ Two earlier attempts failed for reasons worth knowing:
 - **PZEM `VCC` at 3.3 V.** The PZEM's RX input is an optocoupler LED in series with an indicator LED, which together drop about 3 V. At 3.3 V, the indicator glows on every request but the opto never switches reliably, so the modules hear the polls and never answer. The V4.0 silkscreen says 3.3–5.0 V, but power it from 5 V.
 - **Diodes reversed.** With each anode toward the PZEM TX, an idle module pushes 5 V through its diode onto GPIO16, and a module pulling low can't pass through it.
 
+## PCB schematic
+
+[`hardware/ev-charger-controller.sch`](hardware/ev-charger-controller.sch) is an EAGLE schematic for a carrier board that matches the bench build. The modules (ESP32 DevKitC, PZEMs, relay modules, LCD backpack, level shifter) plug in through headers. The board carries mains only for the HLK-PM01 and the fused PZEM voltage tap; relay load wiring, outlets and CTs stay off-board on 12 AWG.
+
+![Schematic preview](hardware/schematic-preview.png)
+
+To open it in Fusion, use **File → Open → Open from my computer** and pick the `.sch` file. It comes in as a new electronics design with its own embedded `evcharger` library.
+
+Check these against the real parts before laying out or ordering a board:
+
+- **ESP32 footprint.** 2 × 19 pins at 2.54 mm with the rows 25.4 mm apart, from the SnapEDA DevKitC V4 part. 38-pin clones (including CH340K boards with an external antenna) don't all use the same row spacing, so measure yours.
+- **HLK-PM01 footprint.** Pad positions are from the SnapEDA part: AC pins 5.0 mm apart at one end, −Vo/+Vo 15.4 mm apart at the other.
+- **Level shifter pinout.** The two 1 × 6 headers follow SparkFun BOB-12009 order (LV1, LV2, LV, GND, LV3, LV4 and the HV equivalents). Generic boards differ; match your module.
+- **Mains.** AC_L, AC_L_F and AC_N are in the `mains` net class: 0.6 mm traces, 2.5 mm between mains nets and 6 mm to everything else. Mains connectors are 5.08 mm screw terminals and the fuse is a 1 A time-lag TR5.
+
+The schematic is generated and checked by the scripts in [`tools/schematic`](tools/schematic).
+
 ## Bill of materials
 
 | Qty | Part | Notes |
@@ -180,7 +197,7 @@ Two earlier attempts failed for reasons worth knowing:
 | 1 | BSS138 bidirectional level shifter, 4-channel | Adafruit 757, SparkFun BOB-12009 or generic; 2 channels used |
 | 2 | 15 A or 20 A receptacle | One per car |
 | 2 | Toggle (maintained) panel switch | On while closed, off when opened |
-| 1 | Inline fuse holder, 1 A fuse | For the PZEM and HLK-PM01 tap |
+| 1 | Inline fuse holder, 1 A fuse | For the PZEM and HLK-PM01 tap on the bench; a 1 A time-lag TR5 fuse on the PCB |
 | 2 | Schottky diode, 1N5819 or similar | PZEM TX diode-OR |
 | 1 | 10 kΩ resistor | Diode-OR pull-up to 3.3 V |
 | 5 | Wago 221-415 | L bus, L tap, N bus, N tap |
