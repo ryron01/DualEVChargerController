@@ -18,7 +18,7 @@ Bench build working, November 2026. Next step is moving it back into the enclosu
 - Two outlets with relay control, exposed to Home Assistant as `Car 1 Switch` and `Car 2 Switch`.
 - Two-layer interlock. Turning one relay on turns the other off, and if both outlets draw more than 0.5 A anyway, relay 2 is cut.
 - Scheduled charging from Home Assistant `input_datetime` helpers: car 1 starts, car 2 takes over at its start time, then stops.
-- Automatic handoff when the active car finishes charging early (current stays under 0.5 A for 60 s).
+- Per-car status for Home Assistant: `Idle`, `Waiting for Car`, `Charging` or `Done Charging`. Handoff between cars belongs in Home Assistant automations, so it can change without reflashing.
 - 16×2 LCD with per-outlet current, charging animation, a done indicator and an interlock warning.
 - Two panel switches for manual control without Home Assistant.
 

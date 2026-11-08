@@ -357,7 +357,9 @@ interval:
             id(relay2).turn_off();
           }
 
-# ── INTERLOCK + CHARGING COMPLETE ────────────────────────────────────
+# ── INTERLOCK ─────────────────────────────────────────────────────────
+# Charging handoff between cars lives in Home Assistant automations, so it
+# can change without reflashing. Safety interlocks stay on the device.
   - interval: 5s
     then:
       # Layer 2 interlock — current-sense simultaneous draw detection
@@ -372,47 +374,3 @@ interval:
                 level: WARN
                 format: "Simultaneous draw detected (C1:%.1fA C2:%.1fA) — cut relay 2"
                 args: ['id(outlet1_current).state', 'id(outlet2_current).state']
-
-      # Charging complete — Car 1 finished early, switch to Car 2
-      - if:
-          condition:
-            lambda: |-
-              return id(relay1).state &&
-                     id(outlet1_current).state < 0.5 &&
-                     id(outlet2_current).state < 0.5 &&
-                     !id(relay2).state;
-          then:
-            - delay: 60s
-            - if:
-                condition:
-                  lambda: |-
-                    return id(relay1).state &&
-                           id(outlet1_current).state < 0.5;
-                then:
-                  - switch.turn_off: relay1
-                  - switch.turn_on: relay2
-                  - logger.log:
-                      level: INFO
-                      format: "Car 1 finished charging — switching to Car 2"
-
-      # Charging complete — Car 2 finished early
-      - if:
-          condition:
-            lambda: |-
-              return id(relay2).state &&
-                     id(outlet2_current).state < 0.5 &&
-                     id(outlet1_current).state < 0.5 &&
-                     !id(relay1).state;
-          then:
-            - delay: 60s
-            - if:
-                condition:
-                  lambda: |-
-                    return id(relay2).state &&
-                           id(outlet2_current).state < 0.5;
-                then:
-                  - switch.turn_off: relay2
-                  - switch.turn_on: relay1
-                  - logger.log:
-                      level: INFO
-                      format: "Car 2 finished charging — switching to Car 1"
