@@ -82,7 +82,6 @@ SYMBOLS = {
     "TOGGLE": conn_symbol(["GND", "SW1", "SW2"]),
     "BSS138-4CH": shifter_symbol(),
     "AC-2": conn_symbol(["L", "N"]),
-    "FUSE": two_pin_symbol("1", "2"),
     "RESISTOR": two_pin_symbol("1", "2"),
     "DIODE": diode_symbol(),
 }
@@ -142,9 +141,6 @@ def do35_pkg():
     return pads, silk
 
 
-def tr5_pkg():
-    pads = [("1", -2.54, 0, 0.8, 1.6, "round"), ("2", 2.54, 0, 0.8, 1.6, "round")]
-    return pads, []  # circle drawn separately
 
 
 PACKAGES = {
@@ -157,7 +153,6 @@ PACKAGES = {
     "TERM-2-5.08": (*term_pkg(), "2-way PCB screw terminal, 5.08 mm, rated for mains"),
     "R-0207-10.16": (*axial_pkg(10.16, 3.2), "Axial resistor 0207, 10.16 mm pitch"),
     "DO-35": (*do35_pkg(), "DO-35 axial diode, 7.62 mm pitch, band = cathode"),
-    "FUSE-TR5": (*tr5_pkg(), "TR5 subminiature fuse, 5.08 mm pitch"),
 }
 
 # devicesets: name -> (prefix, symbol, package, {pin: pad}, description)
@@ -182,7 +177,6 @@ DEVICESETS = {
                    {**{nm: str(i + 1) for i, nm in enumerate(SHIFT_LV)}, **{nm: str(7 + i) for i, nm in enumerate(SHIFT_HV)}},
                    "4-channel BSS138 bidirectional level shifter module (LV1-4 / HV1-4)"),
     "AC-2": ("J", "AC-2", "TERM-2-5.08", {"L": "1", "N": "2"}, "Mains L/N screw terminal"),
-    "FUSE": ("F", "FUSE", "FUSE-TR5", {"1": "1", "2": "2"}, "TR5 fuse, 1 A time-lag, 250 V"),
     "RESISTOR": ("R", "RESISTOR", "R-0207-10.16", {"1": "1", "2": "2"}, "Axial resistor"),
     "SCHOTTKY": ("D", "DIODE", "DO-35", {"A": "A", "C": "C"}, "Schottky diode, DO-35 (BAT43 or BAT85)"),
 }
@@ -191,10 +185,7 @@ DEVICESETS = {
 PARTS = [  # name, deviceset, value, x, y
     ("U1", "ESP32-DEVKITC", "ESP32-DEVKITC-32U", 127.0, 101.6),
     ("PS1", "HLK-PM01", "HLK-PM01", 101.6, 160.02),
-    ("F1", "FUSE", "1A T", 55.88, 170.18),
     ("J1", "AC-2", "AC-IN", 25.4, 170.18),
-    ("J10", "AC-2", "PZEM1-AC", 149.86, 175.26),
-    ("J11", "AC-2", "PZEM2-AC", 149.86, 152.4),
     ("J5", "RELAY-IN", "RELAY1", 50.8, 124.46),
     ("J6", "RELAY-IN", "RELAY2", 50.8, 104.14),
     ("J7", "TOGGLE", "TOGGLE", 50.8, 83.82),
@@ -208,9 +199,8 @@ PARTS = [  # name, deviceset, value, x, y
 ]
 
 NETS = {  # name -> (class, [(part, pin)])
-    "AC_L": (1, [("J1", "L"), ("F1", "1")]),
-    "AC_L_F": (1, [("F1", "2"), ("PS1", "AC1"), ("J10", "L"), ("J11", "L")]),
-    "AC_N": (1, [("J1", "N"), ("PS1", "AC2"), ("J10", "N"), ("J11", "N")]),
+    "AC_L": (1, [("J1", "L"), ("PS1", "AC1")]),
+    "AC_N": (1, [("J1", "N"), ("PS1", "AC2")]),
     "+5V": (0, [("PS1", "+VO"), ("U1", "EXT_5V"), ("J2", "VCC"), ("J3", "VCC"), ("J4", "VCC"),
                 ("J5", "DC+"), ("J6", "DC+"), ("U2", "HV")]),
     "GND": (0, [("PS1", "-VO"), ("U1", "GND1"), ("U1", "GND2"), ("U1", "GND3"), ("J2", "GND"), ("J3", "GND"),
@@ -286,8 +276,6 @@ def build():
             a(f'<pad name="{escape(nm)}" x="{f(x)}" y="{f(y)}" drill="{f(drill)}" diameter="{f(dia)}" shape="{shape}"/>')
         for x1, y1, x2, y2 in silk:
             a(f'<wire x1="{f(x1)}" y1="{f(y1)}" x2="{f(x2)}" y2="{f(y2)}" width="0.2032" layer="21"/>')
-        if pname == "FUSE-TR5":
-            a('<circle x="0" y="0" radius="4.25" width="0.2032" layer="21"/>')
         ys = [p[2] for p in pads] + [0]
         a(f'<text x="0" y="{f(max(ys) + 2.5)}" size="1.27" layer="25" align="bottom-center">&gt;NAME</text>')
         a(f'<text x="0" y="{f(min(ys) - 2.5)}" size="1.27" layer="27" align="top-center">&gt;VALUE</text>')
@@ -301,7 +289,7 @@ def build():
         a(f'<text x="{f(namepos[0])}" y="{f(namepos[1])}" size="1.778" layer="95">&gt;NAME</text>')
         a(f'<text x="{f(valpos[0])}" y="{f(valpos[1])}" size="1.778" layer="96">&gt;VALUE</text>')
         for nm, x, y, rot, length, d in pins:
-            vis = "pin" if sname in ("FUSE", "RESISTOR", "DIODE") else "pad" if False else "pin"
+            vis = "pin"
             a(f'<pin name="{escape(nm)}" x="{f(x)}" y="{f(y)}" visible="{vis}" length="{length}" direction="{d}" rot="{rot}"/>')
         a('</symbol>')
     a('</symbols>')
@@ -324,7 +312,7 @@ def build():
     a('</parts>')
     a('<sheets><sheet><plain>')
     a('<text x="20.32" y="190.5" size="3.81" layer="97">DUAL EV CHARGER CONTROLLER</text>')
-    a('<text x="20.32" y="185.42" size="1.778" layer="97">Mains nets AC_L, AC_L_F, AC_N use net class "mains". Relay load wiring and outlets stay off-board on 12 AWG.</text>')
+    a('<text x="20.32" y="185.42" size="1.778" layer="97">Mains nets AC_L, AC_N use net class "mains". Feed J1 from the inline 1 A fuse; PZEM voltage leads, relay load wiring and outlets stay off-board.</text>')
     a('<text x="20.32" y="182.88" size="1.778" layer="97">PZEM TX diode-OR: cathode (band) toward each PZEM TX, anodes joined at GPIO16 with 10k to 3V3.</text>')
     a('</plain><instances>')
     for name, dset, value, x, y in PARTS:

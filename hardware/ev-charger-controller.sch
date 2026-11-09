@@ -187,13 +187,6 @@
 <text x="0" y="2.5" size="1.27" layer="25" align="bottom-center">&gt;NAME</text>
 <text x="0" y="-2.5" size="1.27" layer="27" align="top-center">&gt;VALUE</text>
 </package>
-<package name="FUSE-TR5"><description>TR5 subminiature fuse, 5.08 mm pitch</description>
-<pad name="1" x="-2.54" y="0" drill="0.8" diameter="1.6" shape="round"/>
-<pad name="2" x="2.54" y="0" drill="0.8" diameter="1.6" shape="round"/>
-<circle x="0" y="0" radius="4.25" width="0.2032" layer="21"/>
-<text x="0" y="2.5" size="1.27" layer="25" align="bottom-center">&gt;NAME</text>
-<text x="0" y="-2.5" size="1.27" layer="27" align="top-center">&gt;VALUE</text>
-</package>
 </packages>
 <symbols>
 <symbol name="ESP32-DEVKITC">
@@ -330,16 +323,6 @@
 <pin name="L" x="-5.08" y="0" visible="pin" length="short" direction="pas" rot="R0"/>
 <pin name="N" x="-5.08" y="-2.54" visible="pin" length="short" direction="pas" rot="R0"/>
 </symbol>
-<symbol name="FUSE">
-<wire x1="-2.54" y1="-1.27" x2="2.54" y2="-1.27" width="0.254" layer="94"/>
-<wire x1="2.54" y1="-1.27" x2="2.54" y2="1.27" width="0.254" layer="94"/>
-<wire x1="2.54" y1="1.27" x2="-2.54" y2="1.27" width="0.254" layer="94"/>
-<wire x1="-2.54" y1="1.27" x2="-2.54" y2="-1.27" width="0.254" layer="94"/>
-<text x="-2.54" y="2" size="1.778" layer="95">&gt;NAME</text>
-<text x="-2.54" y="-3.6" size="1.778" layer="96">&gt;VALUE</text>
-<pin name="1" x="-5.08" y="0" visible="pin" length="short" direction="pas" rot="R0"/>
-<pin name="2" x="5.08" y="0" visible="pin" length="short" direction="pas" rot="R180"/>
-</symbol>
 <symbol name="RESISTOR">
 <wire x1="-2.54" y1="-1.27" x2="2.54" y2="-1.27" width="0.254" layer="94"/>
 <wire x1="2.54" y1="-1.27" x2="2.54" y2="1.27" width="0.254" layer="94"/>
@@ -466,12 +449,6 @@
 <connect gate="G$1" pin="L" pad="1"/>
 <connect gate="G$1" pin="N" pad="2"/>
 </connects><technologies><technology name=""/></technologies></device></devices></deviceset>
-<deviceset name="FUSE" prefix="F" uservalue="yes"><description>TR5 fuse, 1 A time-lag, 250 V</description>
-<gates><gate name="G$1" symbol="FUSE" x="0" y="0"/></gates>
-<devices><device name="" package="FUSE-TR5"><connects>
-<connect gate="G$1" pin="1" pad="1"/>
-<connect gate="G$1" pin="2" pad="2"/>
-</connects><technologies><technology name=""/></technologies></device></devices></deviceset>
 <deviceset name="RESISTOR" prefix="R" uservalue="yes"><description>Axial resistor</description>
 <gates><gate name="G$1" symbol="RESISTOR" x="0" y="0"/></gates>
 <devices><device name="" package="R-0207-10.16"><connects>
@@ -491,10 +468,7 @@
 <parts>
 <part name="U1" library="evcharger" deviceset="ESP32-DEVKITC" device="" value="ESP32-DEVKITC-32U"/>
 <part name="PS1" library="evcharger" deviceset="HLK-PM01" device="" value="HLK-PM01"/>
-<part name="F1" library="evcharger" deviceset="FUSE" device="" value="1A T"/>
 <part name="J1" library="evcharger" deviceset="AC-2" device="" value="AC-IN"/>
-<part name="J10" library="evcharger" deviceset="AC-2" device="" value="PZEM1-AC"/>
-<part name="J11" library="evcharger" deviceset="AC-2" device="" value="PZEM2-AC"/>
 <part name="J5" library="evcharger" deviceset="RELAY-IN" device="" value="RELAY1"/>
 <part name="J6" library="evcharger" deviceset="RELAY-IN" device="" value="RELAY2"/>
 <part name="J7" library="evcharger" deviceset="TOGGLE" device="" value="TOGGLE"/>
@@ -508,15 +482,12 @@
 </parts>
 <sheets><sheet><plain>
 <text x="20.32" y="190.5" size="3.81" layer="97">DUAL EV CHARGER CONTROLLER</text>
-<text x="20.32" y="185.42" size="1.778" layer="97">Mains nets AC_L, AC_L_F, AC_N use net class "mains". Relay load wiring and outlets stay off-board on 12 AWG.</text>
+<text x="20.32" y="185.42" size="1.778" layer="97">Mains nets AC_L, AC_N use net class "mains". Feed J1 from the inline 1 A fuse; PZEM voltage leads, relay load wiring and outlets stay off-board.</text>
 <text x="20.32" y="182.88" size="1.778" layer="97">PZEM TX diode-OR: cathode (band) toward each PZEM TX, anodes joined at GPIO16 with 10k to 3V3.</text>
 </plain><instances>
 <instance part="U1" gate="G$1" x="127" y="101.6"/>
 <instance part="PS1" gate="G$1" x="101.6" y="160.02"/>
-<instance part="F1" gate="G$1" x="55.88" y="170.18"/>
 <instance part="J1" gate="G$1" x="25.4" y="170.18"/>
-<instance part="J10" gate="G$1" x="149.86" y="175.26"/>
-<instance part="J11" gate="G$1" x="149.86" y="152.4"/>
 <instance part="J5" gate="G$1" x="50.8" y="124.46"/>
 <instance part="J6" gate="G$1" x="50.8" y="104.14"/>
 <instance part="J7" gate="G$1" x="50.8" y="83.82"/>
@@ -535,31 +506,9 @@
 <label x="12.7" y="170.18" size="1.27" layer="95" rot="R180"/>
 </segment>
 <segment>
-<pinref part="F1" gate="G$1" pin="1"/>
-<wire x1="50.8" y1="170.18" x2="43.18" y2="170.18" width="0.1524" layer="91"/>
-<label x="43.18" y="170.18" size="1.27" layer="95" rot="R180"/>
-</segment>
-</net>
-<net name="AC_L_F" class="1">
-<segment>
-<pinref part="F1" gate="G$1" pin="2"/>
-<wire x1="60.96" y1="170.18" x2="68.58" y2="170.18" width="0.1524" layer="91"/>
-<label x="68.58" y="170.18" size="1.27" layer="95" rot="R0"/>
-</segment>
-<segment>
 <pinref part="PS1" gate="G$1" pin="AC1"/>
 <wire x1="88.9" y1="162.56" x2="81.28" y2="162.56" width="0.1524" layer="91"/>
 <label x="81.28" y="162.56" size="1.27" layer="95" rot="R180"/>
-</segment>
-<segment>
-<pinref part="J10" gate="G$1" pin="L"/>
-<wire x1="144.78" y1="175.26" x2="137.16" y2="175.26" width="0.1524" layer="91"/>
-<label x="137.16" y="175.26" size="1.27" layer="95" rot="R180"/>
-</segment>
-<segment>
-<pinref part="J11" gate="G$1" pin="L"/>
-<wire x1="144.78" y1="152.4" x2="137.16" y2="152.4" width="0.1524" layer="91"/>
-<label x="137.16" y="152.4" size="1.27" layer="95" rot="R180"/>
 </segment>
 </net>
 <net name="AC_N" class="1">
@@ -572,16 +521,6 @@
 <pinref part="PS1" gate="G$1" pin="AC2"/>
 <wire x1="88.9" y1="157.48" x2="81.28" y2="157.48" width="0.1524" layer="91"/>
 <label x="81.28" y="157.48" size="1.27" layer="95" rot="R180"/>
-</segment>
-<segment>
-<pinref part="J10" gate="G$1" pin="N"/>
-<wire x1="144.78" y1="172.72" x2="137.16" y2="172.72" width="0.1524" layer="91"/>
-<label x="137.16" y="172.72" size="1.27" layer="95" rot="R180"/>
-</segment>
-<segment>
-<pinref part="J11" gate="G$1" pin="N"/>
-<wire x1="144.78" y1="149.86" x2="137.16" y2="149.86" width="0.1524" layer="91"/>
-<label x="137.16" y="149.86" size="1.27" layer="95" rot="R180"/>
 </segment>
 </net>
 <net name="+5V" class="0">

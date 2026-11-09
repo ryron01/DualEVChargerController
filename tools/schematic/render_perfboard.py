@@ -13,13 +13,13 @@ M = 34            # margin for labels
 COLS = "ABCDEFGHIJKLMNOPQRSTUVWX"
 
 NET_COLOR = {
-    "AC_L": "#8b3a1a", "AC_L_F": "#c2410c", "AC_N": "#1e3a8a",
+    "AC_L": "#b23a12", "AC_N": "#1e3a8a",
     "+5V": "#d6336c", "GND": "#1f2328", "+3V3": "#e8590c",
     "PZEM_TX": "#0b7285", "PZEM1_TX": "#1098ad", "PZEM2_TX": "#15aabf", "PZEM_RX": "#5c7cfa",
     "RELAY1": "#2f9e44", "RELAY2": "#66a80f", "SW1": "#9c36b5", "SW2": "#cc5de8",
     "SDA_3V3": "#7048e8", "SCL_3V3": "#845ef7", "SDA_5V": "#ae3ec9", "SCL_5V": "#be4bdb",
 }
-STEP = {"AC_L": 1, "AC_L_F": 1, "AC_N": 1, "+5V": 2, "GND": 2, "+3V3": 2}
+STEP = {"AC_L": 1, "AC_N": 1, "+5V": 2, "GND": 2, "+3V3": 2}
 STEP_NAMES = {1: "Mains wiring", 2: "Power and ground", 3: "Signals"}
 
 
@@ -41,7 +41,7 @@ def svg(d, mirror):
     o.append(f'<rect x="4" y="4" width="{w - 8}" height="{h - 8}" rx="8" fill="#d8c48f" stroke="#a8935c"/>')
     # mains zone
     x1, y1 = px(0, 0, mirror, W)
-    x2, y2 = px(8, 15, mirror, W)
+    x2, y2 = px(*d["board"]["mains_zone"], mirror, W)
     zx, zy = min(x1, x2) - P / 2, y1 - P / 2
     o.append(f'<rect x="{zx}" y="{zy}" width="{abs(x2 - x1) + P}" height="{y2 - y1 + P}" fill="url(#hatch)" stroke="#b42318" stroke-dasharray="5 4" rx="4"/>')
     # labels
@@ -129,9 +129,9 @@ def build(d, outdir):
     def part_holes(part):
         return {p["pin"]: hole(p["x"], p["y"]) for p in d["pins"] if p["part"] == part}
 
-    D1, D2, R1, F1 = part_holes("D1"), part_holes("D2"), part_holes("R1"), part_holes("F1")
+    D1, D2, R1 = part_holes("D1"), part_holes("D2"), part_holes("R1")
     U1, U2, PS1 = part_holes("U1"), part_holes("U2"), part_holes("PS1")
-    J = {k: part_holes(k) for k in ("J1", "J2", "J3", "J4", "J5", "J6", "J7", "J10", "J11")}
+    J = {k: part_holes(k) for k in ("J1", "J2", "J3", "J4", "J5", "J6", "J7")}
 
     def span(ph):
         hs = sorted(ph.values(), key=lambda h: (int(h[1:]), h[0]))
@@ -141,7 +141,6 @@ def build(d, outdir):
         ("D1", "BAT43 Schottky", f"Cathode band at {D1['C']} (next to PZEM1 TX), anode at {D1['A']}"),
         ("D2", "BAT43 Schottky", f"Cathode band at {D2['C']} (next to PZEM2 TX), anode at {D2['A']}"),
         ("R1", "10 kΩ", f"{R1['1']} (3V3 side) to {R1['2']} (diode junction), standing or flat"),
-        ("F1", "1 A time-lag TR5 fuse", f"{F1['1']} and {F1['2']}"),
         ("U1", "2 × 1×19 female headers for the ESP32", f"Inner row {U1['EXT_5V']}–{U1['3V3']} (5V end at {U1['EXT_5V']}, 3V3 at {U1['3V3']}); outer row {U1['CLK']}–{U1['GND3']}. USB faces the left edge."),
         ("U2", "2 × 1×6 female headers for the level shifter", f"HV row {U2['HV1']}–{U2['HV4']} (HV1 at {U2['HV1']}), LV row {U2['LV1']}–{U2['LV4']}"),
         ("J4", "1×4 header, LCD", f"GND {J['J4']['GND']}, VCC {J['J4']['VCC']}, SDA {J['J4']['SDA']}, SCL {J['J4']['SCL']}"),
@@ -150,9 +149,7 @@ def build(d, outdir):
         ("J5", "1×3 header, relay 1", f"DC+ {J['J5']['DC+']}, DC− {J['J5']['DC-']}, IN {J['J5']['IN']}"),
         ("J6", "1×3 header, relay 2", f"DC+ {J['J6']['DC+']}, DC− {J['J6']['DC-']}, IN {J['J6']['IN']}"),
         ("J7", "1×3 header, panel switches", f"SW2 {J['J7']['SW2']}, SW1 {J['J7']['SW1']}, GND {J['J7']['GND']} (pin 1 = GND at the right end)"),
-        ("J1", "2-way 5.08 mm screw terminal, AC in", f"L {J['J1']['L']}, N {J['J1']['N']}"),
-        ("J10", "2-way 5.08 mm screw terminal, PZEM1 AC", f"L {J['J10']['L']}, N {J['J10']['N']}"),
-        ("J11", "2-way 5.08 mm screw terminal, PZEM2 AC", f"L {J['J11']['L']}, N {J['J11']['N']}"),
+        ("J1", "2-way 5.08 mm screw terminal, AC in from the inline fuse", f"L {J['J1']['L']}, N {J['J1']['N']}"),
         ("PS1", "HLK-PM01", f"AC1 {PS1['AC1']}, AC2 {PS1['AC2']}, −Vo {PS1['-VO']}, +Vo {PS1['+VO']}. Its pins are 29.4 mm end to end and the holes 30.5 mm, so bend each pin out about 0.5 mm."),
     ]
     return top, bottom, rows, place

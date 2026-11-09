@@ -5,9 +5,8 @@ from collections import defaultdict
 
 # Expected netlist, written from the bench wiring and ev-charger.yaml, not from the generator.
 EXPECTED = {
-    "AC_L": {"J1.L", "F1.1"},
-    "AC_L_F": {"F1.2", "PS1.AC1", "J10.L", "J11.L"},
-    "AC_N": {"J1.N", "PS1.AC2", "J10.N", "J11.N"},
+    "AC_L": {"J1.L", "PS1.AC1"},      # J1 is fed from the inline fuse
+    "AC_N": {"J1.N", "PS1.AC2"},
     "+5V": {"PS1.+VO", "U1.EXT_5V", "J2.VCC", "J3.VCC", "J4.VCC", "J5.DC+", "J6.DC+", "U2.HV"},
     "GND": {"PS1.-VO", "U1.GND1", "U1.GND2", "U1.GND3", "J2.GND", "J3.GND", "J4.GND", "J5.DC-", "J6.DC-",
             "J7.GND", "U2.GND@1", "U2.GND@2"},
@@ -25,7 +24,7 @@ EXPECTED = {
     "SDA_5V": {"U2.HV1", "J4.SDA"},
     "SCL_5V": {"U2.HV2", "J4.SCL"},
 }
-MAINS = {"AC_L", "AC_L_F", "AC_N"}
+MAINS = {"AC_L", "AC_N"}
 # physical pad expectations from the SnapEDA parts read out of Fusion
 PAD_EXPECT = {("HLK-PM01", "AC1"): "1", ("HLK-PM01", "AC2"): "2", ("HLK-PM01", "-VO"): "3", ("HLK-PM01", "+VO"): "4",
               ("ESP32-DEVKITC", "3V3"): "1", ("ESP32-DEVKITC", "EXT_5V"): "19", ("ESP32-DEVKITC", "GND1"): "14",

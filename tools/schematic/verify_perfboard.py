@@ -15,7 +15,7 @@ src = open(spec.origin).read()
 EXPECTED = {}
 exec(src[src.index("EXPECTED = {"):src.index("MAINS = ")], {}, globals_ := {})
 EXPECTED = globals_["EXPECTED"]
-MAINS = {"AC_L", "AC_L_F", "AC_N"}
+MAINS = {"AC_L", "AC_N"}
 CLEAR = 3.0
 
 d = json.load(open(sys.argv[1]))

@@ -14,6 +14,8 @@ g = json.load(open(os.path.join(out, "guide-data.json")))
 top = open(os.path.join(out, "top-inline.svg")).read()
 bottom = open(os.path.join(out, "bottom-inline.svg")).read()
 nwires = len(g["rows"])
+zone = json.load(open(os.path.join(out, "layout.json")))["board"]["mains_zone"]
+zone_txt = f"columns A–{'ABCDEFGHIJKLMNOPQRSTUVWX'[zone[0]]}, rows 1–{zone[1] + 1}"
 
 legend = "".join(
     f'<button type="button" class="chip" data-net="{escape(n)}" aria-pressed="false"><i style="background:{c}"></i>{escape(n)}</button>'
@@ -116,7 +118,7 @@ svg.pb .wire{{transition:opacity .15s}}
   <p>Parts go on the top. Every connection is an insulated wire on the bottom, soldered at both ends. Holes are named by column letter and row number, as on the board edges. The bottom view is mirrored, so it matches the board when you flip it left to right. Click a wire in the lists to find it on both views.</p>
 
   <div class="notes">
-    <div class="note warn"><b>Mains zone.</b> The hatched area (columns A–I, rows 1–16) carries 120 V. Use insulated wire rated 300 V or more there, and run nothing else through it. Low-voltage parts and wires stay at least 10 mm from any mains hole.</div>
+    <div class="note warn"><b>Mains zone.</b> The hatched area ({zone_txt}) carries 120 V from J1 to the HLK-PM01. The board has no fuse of its own, so feed J1 only from the inline 1 A fuse. Use insulated wire rated 300 V or more there, and run nothing else through it. Low-voltage parts and wires stay at least 10 mm from any mains hole.</div>
     <div class="note"><b>Wire.</b> 24–26 AWG insulated (silicone or PTFE) for low voltage; 20 AWG rated 300 V for mains. Wires may cross each other on the bottom; the routes shown avoid other nets' pads.</div>
     <div class="note"><b>Diodes.</b> The band (cathode) faces the PZEM header: D1 band at W12, D2 band at W17. Reversed diodes put 5 V on GPIO16 and block replies.</div>
     <div class="note"><b>Modules on headers.</b> The ESP32 and level shifter sit in female headers. Unused ESP32 pins still get a header socket; some wires pass under those joints on the bottom.</div>
@@ -133,7 +135,7 @@ svg.pb .wire{{transition:opacity .15s}}
   <section>
     <div class="tools"><h2>Step 1: Place and solder parts</h2><span class="progress" id="prog-p"></span></div>
     <div class="tbl"><table><thead><tr><th scope="col"><span class="sr">Done</span></th><th scope="col">Part</th><th scope="col">What</th><th scope="col">Holes</th></tr></thead><tbody id="place">{place_rows}</tbody></table></div>
-    <p class="muted" style="margin-top:8px">Solder the lowest parts first: diodes, resistor, fuse, then headers and terminals, then the HLK-PM01.</p>
+    <p class="muted" style="margin-top:8px">Solder the lowest parts first: diodes and resistor, then headers and the terminal, then the HLK-PM01.</p>
   </section>
 
   <section>
@@ -147,7 +149,7 @@ svg.pb .wire{{transition:opacity .15s}}
       <li>With nothing plugged in, check for no continuity between J1 L or N and any low-voltage point: +5V, GND, 3V3.</li>
       <li>Check no continuity between +5V and GND, or between 3V3 and GND.</li>
       <li>Check continuity from each header pin to its ESP32 socket, using the wire list.</li>
-      <li>Fit the fuse, power from the GFCI bench feed with the ESP32 and modules out, and measure 5 V at J4 VCC.</li>
+      <li>Feed J1 through the inline fuse from the GFCI bench feed, with the ESP32 and modules out, and measure 5 V at J4 VCC.</li>
       <li>Power off, fit the ESP32 and level shifter, power up and confirm the D1/D2 anode junction reads about 3.3 V.</li>
     </ol>
   </section>

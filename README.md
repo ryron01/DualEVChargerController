@@ -170,7 +170,7 @@ Two earlier attempts failed for reasons worth knowing:
 
 ## PCB schematic
 
-[`hardware/ev-charger-controller.sch`](hardware/ev-charger-controller.sch) is an EAGLE schematic for a carrier board that matches the bench build. The modules (ESP32 DevKitC, PZEMs, relay modules, LCD backpack, level shifter) plug in or connect through headers. The board carries mains only for the HLK-PM01 and the fused PZEM voltage tap; relay load wiring, outlets and CTs stay off-board on 12 AWG.
+[`hardware/ev-charger-controller.sch`](hardware/ev-charger-controller.sch) is an EAGLE schematic for a carrier board that matches the bench build. The modules (ESP32 DevKitC, PZEMs, relay modules, LCD backpack, level shifter) plug in or connect through headers. The only mains on the board is J1 feeding the HLK-PM01. J1 is fed from the inline 1 A fuse, and the PZEM voltage leads, relay load wiring, outlets and CTs all stay off-board.
 
 ![Schematic preview](hardware/schematic-preview.png)
 
@@ -181,7 +181,7 @@ Check these against the real parts before laying out or ordering a board:
 - **ESP32 footprint.** 2 × 19 pins at 2.54 mm with the rows 25.4 mm apart, from the SnapEDA DevKitC V4 part. 38-pin clones (including CH340K boards with an external antenna) don't all use the same row spacing, so measure yours.
 - **HLK-PM01 footprint.** Pad positions are from the SnapEDA part: AC pins 5.0 mm apart at one end, −Vo/+Vo 15.4 mm apart at the other.
 - **Level shifter footprint.** U2 is the 4-channel BSS138 module as one part: two rows of six at 2.54 mm, each row ordered 1, 2, V, GND, 3, 4 with HV*n* across from LV*n*, mounted component side up. The 10.16 mm row spacing is estimated from a photo, so measure your module.
-- **Mains.** AC_L, AC_L_F and AC_N are in the `mains` net class: 0.6 mm traces, 2.5 mm between mains nets and 6 mm to everything else. Mains connectors are 5.08 mm screw terminals and the fuse is a 1 A time-lag TR5.
+- **Mains.** AC_L and AC_N are in the `mains` net class: 0.6 mm traces, 2.5 mm between them and 6 mm to everything else. J1 is a 5.08 mm screw terminal. The board has no fuse of its own, so feed J1 only from the inline fuse.
 
 The schematic is generated and checked by the scripts in [`tools/schematic`](tools/schematic).
 
@@ -193,7 +193,7 @@ The schematic is generated and checked by the scripts in [`tools/schematic`](too
 | --- | --- |
 | ![Perfboard top](hardware/perfboard/perfboard-top.svg) | ![Perfboard bottom](hardware/perfboard/perfboard-bottom.svg) |
 
-- **Mains zone.** Columns A–I, rows 1–16 carry 120 V. Use insulated wire rated 300 V or more there. Every low-voltage hole is at least 10 mm from any mains hole.
+- **Mains zone.** Columns A–I, rows 1–7 carry 120 V from J1 to the HLK-PM01. Feed J1 only from the inline fuse, and use insulated wire rated 300 V or more there. Every low-voltage hole is at least 11 mm from any mains hole.
 - **Wiring.** Every connection is an insulated wire on the bottom. Wires may cross each other but never pass over another net's pad.
 - **Modules.** The ESP32 and the level shifter plug into female headers. The ESP32's USB end faces the left edge.
 - **HLK-PM01.** Its pins are 29.4 mm end to end and the holes 30.5 mm apart, so bend each pin out about 0.5 mm.
@@ -220,7 +220,7 @@ python make_guide.py ../../hardware/perfboard
 | 1 | BSS138 bidirectional level shifter, 4-channel | Adafruit 757, SparkFun BOB-12009 or generic; 2 channels used |
 | 2 | 15 A or 20 A receptacle | One per car |
 | 2 | Toggle (maintained) panel switch | On while closed, off when opened |
-| 1 | Inline fuse holder, 1 A fuse | For the PZEM and HLK-PM01 tap on the bench; a 1 A time-lag TR5 fuse on the PCB |
+| 1 | Inline fuse holder, 1 A fuse | Protects the HLK-PM01 and both PZEM voltage inputs |
 | 2 | Schottky diode, 1N5819 or similar | PZEM TX diode-OR |
 | 1 | 10 kΩ resistor | Diode-OR pull-up to 3.3 V |
 | 5 | Wago 221-415 | L bus, L tap, N bus, N tap |

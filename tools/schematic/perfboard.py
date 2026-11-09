@@ -19,7 +19,8 @@ from gen_sch import NETS, ESP_LEFT, ESP_RIGHT_BOTTOM_UP  # same netlist as the s
 W, H = 24, 30          # columns A..X, rows 1..30
 MAINS = {n for n, (cls, _) in NETS.items() if cls == 1}
 CLEAR = 3.0            # holes between mains and low voltage (7.62 mm)
-MAINS_ZONE = lambda x, y: x <= 8 and y <= 15
+MAINS_ZONE_MAX = (8, 6)  # columns A..I, rows 1..7
+MAINS_ZONE = lambda x, y: x <= MAINS_ZONE_MAX[0] and y <= MAINS_ZONE_MAX[1]
 
 # ------------------------------------------------------------------ placement
 # board coordinates: x = column (0 = A), y = row (0 = row 1, top edge)
@@ -33,9 +34,6 @@ for i, nm in enumerate(ESP_RIGHT_BOTTOM_UP):             # pad 20 + i
 PLACE.update({
     # mains block, top left
     ("J1", "L"): (1, 1), ("J1", "N"): (1, 3),
-    ("F1", "1"): (5, 1), ("F1", "2"): (5, 3),
-    ("J10", "L"): (1, 6), ("J10", "N"): (1, 8),
-    ("J11", "L"): (1, 11), ("J11", "N"): (1, 13),
     ("PS1", "AC1"): (8, 3), ("PS1", "AC2"): (8, 5), ("PS1", "-VO"): (20, 1), ("PS1", "+VO"): (20, 7),
     # relay and switch headers in a row just above the ESP32's inner pin row
     ("J6", "DC+"): (6, 17), ("J6", "DC-"): (7, 17), ("J6", "IN"): (8, 17),
@@ -60,8 +58,7 @@ BODIES = {
     "U1": (0.3, 18.4, 23.9, 29.6, "ESP32 DevKitC on female headers"),
     "PS1": (7.3, 0.0, 20.7, 7.95, "HLK-PM01"),
     "U2": (14.45, 8.4, 20.55, 13.6, "Level shifter"),
-    "F1": (3.33, 0.33, 6.67, 3.67, "Fuse 1 A T"),
-    "J1": (-0.5, 0.0, 2.5, 4.0, "AC in"), "J10": (-0.5, 5.0, 2.5, 9.0, "PZEM1 AC"), "J11": (-0.5, 10.0, 2.5, 14.0, "PZEM2 AC"),
+    "J1": (-0.5, 0.0, 2.5, 4.0, "AC in (from inline fuse)"),
     "J6": (5.5, 16.5, 8.5, 17.5, "Relay 2"), "J5": (9.5, 16.5, 12.5, 17.5, "Relay 1"), "J7": (12.5, 16.5, 15.5, 17.5, "Switches"),
     "J4": (12.5, 8.5, 13.5, 12.5, "LCD"),
     "J2": (22.5, 8.5, 23.5, 12.5, "PZEM1"), "J3": (22.5, 13.5, 23.5, 17.5, "PZEM2"),
@@ -206,7 +203,7 @@ def best_layout(tries=300):
 if __name__ == "__main__":
     (crossings, bends, length), order, wires = best_layout(int(sys.argv[2]) if len(sys.argv) > 2 else 300)
     data = {
-        "board": {"cols": W, "rows": H, "clearance_holes": CLEAR},
+        "board": {"cols": W, "rows": H, "clearance_holes": CLEAR, "mains_zone": list(MAINS_ZONE_MAX)},
         "pins": [{"part": p, "pin": pin, "hole": hole(xy), "x": xy[0], "y": xy[1]} for (p, pin), xy in PLACE.items()],
         "bodies": {k: {"x1": v[0], "y1": v[1], "x2": v[2], "y2": v[3], "label": v[4], "under_module": k in UNDER_MODULE} for k, v in BODIES.items()},
         "nets": {},
