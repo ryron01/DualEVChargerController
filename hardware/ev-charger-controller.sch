@@ -420,7 +420,7 @@
 <connect gate="G$1" pin="SDA" pad="3"/>
 <connect gate="G$1" pin="SCL" pad="4"/>
 </connects><technologies><technology name=""/></technologies></device></devices></deviceset>
-<deviceset name="TOGGLE" prefix="J" uservalue="yes"><description>Panel switches: common GND, car 1, car 2</description>
+<deviceset name="TOGGLE" prefix="J" uservalue="yes"><description>Panel buttons, momentary normally open: common GND, car 1, car 2</description>
 <gates><gate name="G$1" symbol="TOGGLE" x="0" y="0"/></gates>
 <devices><device name="" package="PINHD-1X3"><connects>
 <connect gate="G$1" pin="GND" pad="1"/>
@@ -471,7 +471,7 @@
 <part name="J1" library="evcharger" deviceset="AC-2" device="" value="AC-IN"/>
 <part name="J5" library="evcharger" deviceset="RELAY-IN" device="" value="RELAY1"/>
 <part name="J6" library="evcharger" deviceset="RELAY-IN" device="" value="RELAY2"/>
-<part name="J7" library="evcharger" deviceset="TOGGLE" device="" value="TOGGLE"/>
+<part name="J7" library="evcharger" deviceset="TOGGLE" device="" value="BUTTONS"/>
 <part name="R1" library="evcharger" deviceset="RESISTOR" device="" value="10k"/>
 <part name="D1" library="evcharger" deviceset="SCHOTTKY" device="" value="BAT43"/>
 <part name="D2" library="evcharger" deviceset="SCHOTTKY" device="" value="BAT43"/>

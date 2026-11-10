@@ -238,31 +238,35 @@ binary_sensor:
              id(outlet2_current).state > 0.5;
     device_class: problem
 
+  # Momentary button to GND: each press toggles car 1's outlet. Turning it on
+  # turns car 2's off through the relay interlock below.
   - platform: gpio
     pin:
       number: GPIO32
       mode: INPUT_PULLUP
       inverted: true
-    name: "Panel Switch Car 1"
-    id: switch_outlet1
+    name: "Panel Button Car 1"
+    id: button_outlet1
+    filters:
+      - delayed_on: 30ms
+      - delayed_off: 30ms
     on_press:
-      - switch.turn_on: relay1
-      - switch.turn_off: relay2
-    on_release:
-      - switch.turn_off: relay1
+      - switch.toggle: relay1
 
+  # Momentary button to GND: each press toggles car 2's outlet. Turning it on
+  # turns car 1's off through the relay interlock below.
   - platform: gpio
     pin:
       number: GPIO33
       mode: INPUT_PULLUP
       inverted: true
-    name: "Panel Switch Car 2"
-    id: switch_outlet2
+    name: "Panel Button Car 2"
+    id: button_outlet2
+    filters:
+      - delayed_on: 30ms
+      - delayed_off: 30ms
     on_press:
-      - switch.turn_on: relay2
-      - switch.turn_off: relay1
-    on_release:
-      - switch.turn_off: relay2
+      - switch.toggle: relay2
 
 # ── RELAYS ────────────────────────────────────────────────────────────
 switch:

@@ -20,7 +20,7 @@ Bench build working, November 2026. Next step is moving it back into the enclosu
 - Per-car status for Home Assistant: `Idle`, `Waiting for Car`, `Charging` or `Done Charging`.
 - No schedule or handoff logic on the device. Those run as Home Assistant automations, so they can change without reflashing. The controller keeps working as a pair of interlocked switches if Home Assistant is down.
 - 16×2 LCD with per-outlet current, charging animation, a done indicator and an interlock warning.
-- Two panel switches for manual control without Home Assistant.
+- Two momentary panel buttons for manual control without Home Assistant. Each press toggles that car's outlet; turning one on turns the other off.
 
 ## Bench wiring
 
@@ -51,8 +51,8 @@ The HLK-PM01 supplies 5 V for the ESP32, the relay coils, the LCD and both PZEM 
 | `GPIO26` | Relay B `IN` | Car 2 |
 | `GPIO22` | Level shifter `LV1` → LCD `SDA` | PCF8574 backpack at 0x27 |
 | `GPIO23` | Level shifter `LV2` → LCD `SCL` | |
-| `GPIO32` | Panel switch, car 1 | Input pull-up, switch to GND |
-| `GPIO33` | Panel switch, car 2 | Input pull-up, switch to GND |
+| `GPIO32` | Panel button, car 1 | Input pull-up, button to GND |
+| `GPIO33` | Panel button, car 2 | Input pull-up, button to GND |
 | `5V` | +5 V rail | From HLK-PM01; feeds PZEM `VCC` |
 | `3V3` | +3.3 V rail | Diode-OR pull-up, level shifter `LV` |
 
@@ -219,7 +219,7 @@ python make_guide.py ../../hardware/perfboard
 | 1 | 1602 LCD with PCF8574 I2C backpack | Address 0x27, 5 V |
 | 1 | BSS138 bidirectional level shifter, 4-channel | Adafruit 757, SparkFun BOB-12009 or generic; 2 channels used |
 | 2 | 15 A or 20 A receptacle | One per car |
-| 2 | Toggle (maintained) panel switch | On while closed, off when opened |
+| 2 | Momentary push button, normally open | Each press toggles that car's outlet |
 | 1 | Inline fuse holder, 1 A fuse | Protects the HLK-PM01 and both PZEM voltage inputs |
 | 2 | Schottky diode, 1N5819 or similar | PZEM TX diode-OR |
 | 1 | 10 kΩ resistor | Diode-OR pull-up to 3.3 V |

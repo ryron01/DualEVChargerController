@@ -148,7 +148,7 @@ def build(d, outdir):
         ("J3", "1×4 header, PZEM2", f"VCC {J['J3']['VCC']}, RX {J['J3']['RX']}, TX {J['J3']['TX']}, GND {J['J3']['GND']}"),
         ("J5", "1×3 header, relay 1", f"DC+ {J['J5']['DC+']}, DC− {J['J5']['DC-']}, IN {J['J5']['IN']}"),
         ("J6", "1×3 header, relay 2", f"DC+ {J['J6']['DC+']}, DC− {J['J6']['DC-']}, IN {J['J6']['IN']}"),
-        ("J7", "1×3 header, panel switches", f"SW2 {J['J7']['SW2']}, SW1 {J['J7']['SW1']}, GND {J['J7']['GND']} (pin 1 = GND at the right end)"),
+        ("J7", "1×3 header, panel buttons", f"SW2 {J['J7']['SW2']}, SW1 {J['J7']['SW1']}, GND {J['J7']['GND']} (pin 1 = GND at the right end)"),
         ("J1", "2-way 5.08 mm screw terminal, AC in from the inline fuse", f"L {J['J1']['L']}, N {J['J1']['N']}"),
         ("PS1", "HLK-PM01", f"AC1 {PS1['AC1']}, AC2 {PS1['AC2']}, −Vo {PS1['-VO']}, +Vo {PS1['+VO']}. Its pins are 29.4 mm end to end and the holes 30.5 mm, so bend each pin out about 0.5 mm."),
     ]
