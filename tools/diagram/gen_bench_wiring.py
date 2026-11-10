@@ -230,7 +230,7 @@ def lcd(x, y, w, h):
 
 def switches(x, y, w, h):
     out.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="6" fill="#e9ecef" stroke="#8d949b" stroke-width="1.2"/>')
-    text(x+w/2, y+20, "Panel switches", "cname", "middle", fill="#1f2328")
+    text(x+w/2, y+20, "Panel buttons", "cname", "middle", fill="#1f2328")
     for i, lab in enumerate(["Car 1", "Car 2"]):
         sy = y + 44 + 26*i
         out.append(f'<circle cx="{x+30}" cy="{sy}" r="3" fill="#495057"/>')
