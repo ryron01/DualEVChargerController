@@ -1,78 +1,85 @@
-"""Perfboard layout for the EV charger controller on a 24 x 30 hole plain perfboard.
+"""Perfboard layout for the EV charger controller on a 70 x 90 mm plain perfboard.
 
-Parts sit on top; every connection is a wire on the bottom running hole to hole
-(orthogonal runs). Nets never share a hole. Mains nets stay in the top-left
-mains zone and every low-voltage hole keeps 3 holes (7.6 mm) from any mains hole.
-Where a net cannot be routed on the bottom without crossing, it gets an
-insulated jumper on the top side.
+The board is drawn as it sits in the enclosure: the 90 mm side runs left to
+right. That is the printed board turned a quarter turn left, so printed row
+numbers 1..31 run left to right and printed letters A..Z run bottom to top.
+A hole is named the way the board prints it, letter then number (A1 is the
+bottom-left hole).
 
-Usage: python perfboard.py layout.json
+Parts sit on top; every connection is an insulated wire on the bottom between
+two pins. Wires may cross each other but never pass over another net's pad.
+Mains stays in the bottom-left zone and every low-voltage hole keeps 3 holes
+(7.6 mm) from any mains hole.
+
+Usage: python perfboard.py layout.json [tries]
 """
 import json
 import random
 import sys
-from collections import deque
 
 sys.path.insert(0, __import__("os").path.dirname(__file__))
 from gen_sch import NETS, ESP_LEFT, ESP_RIGHT_BOTTOM_UP  # same netlist as the schematic
 
-W, H = 24, 30          # columns A..X, rows 1..30
+W, H = 31, 26                       # x: printed numbers 1..31, y: printed letters Z..A (top to bottom)
+LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 MAINS = {n for n, (cls, _) in NETS.items() if cls == 1}
-CLEAR = 3.0            # holes between mains and low voltage (7.62 mm)
-MAINS_ZONE_MAX = (8, 6)  # columns A..I, rows 1..7
-MAINS_ZONE = lambda x, y: x <= MAINS_ZONE_MAX[0] and y <= MAINS_ZONE_MAX[1]
+CLEAR = 3.0                         # holes between mains and low voltage (7.62 mm)
+MAINS_RECT = (0, 20, 8, 25)         # x1, y1, x2, y2 in board coordinates, bottom-left corner
+MAINS_ZONE = lambda x, y: MAINS_RECT[0] <= x <= MAINS_RECT[2] and MAINS_RECT[1] <= y <= MAINS_RECT[3]
 
 # ------------------------------------------------------------------ placement
-# board coordinates: x = column (0 = A), y = row (0 = row 1, top edge)
+# board coordinates: x = 0..30 left to right, y = 0..25 top to bottom
 PLACE = {}
-# ESP32 on female headers along the bottom, rotated so pads 1-19 form the inner row
-# (row 20) and pads 20-38 the outer row (row 30). USB end at the left edge, antenna end right.
-for k, nm in enumerate(ESP_LEFT, start=1):               # pad k
-    PLACE[("U1", nm)] = (21 - k, 19)
-for i, nm in enumerate(ESP_RIGHT_BOTTOM_UP):             # pad 20 + i
-    PLACE[("U1", nm)] = (2 + i, 29)
+# ESP32 (Lonely Binary, WROOM-32UE) across the top on female headers.
+# Pads 20-38 form the top row along the board's upper edge, so the u.FL antenna
+# connector (beside pad 38) sits near the top-left corner of the module.
+# Pads 1-19 form the lower row, facing the rest of the board. USB-C is at the right end.
+for k, nm in enumerate(ESP_LEFT, start=1):               # pad k: lower row, pad 1 at the left
+    PLACE[("U1", nm)] = (11 + k, 10)
+for i, nm in enumerate(ESP_RIGHT_BOTTOM_UP):             # pad 20 + i: top row, pad 38 at the left
+    PLACE[("U1", nm)] = (30 - i, 0)
 PLACE.update({
-    # mains block, top left
-    ("J1", "L"): (1, 1), ("J1", "N"): (1, 3),
-    ("PS1", "AC1"): (8, 3), ("PS1", "AC2"): (8, 5), ("PS1", "-VO"): (20, 1), ("PS1", "+VO"): (20, 7),
-    # relay and switch headers in a row just above the ESP32's inner pin row
-    ("J6", "DC+"): (6, 17), ("J6", "DC-"): (7, 17), ("J6", "IN"): (8, 17),
-    ("J5", "DC+"): (10, 17), ("J5", "DC-"): (11, 17), ("J5", "IN"): (12, 17),
-    ("J7", "SW2"): (13, 17), ("J7", "SW1"): (14, 17), ("J7", "GND"): (15, 17),
-    # LCD header beside the level shifter's HV row
-    ("J4", "GND"): (13, 9), ("J4", "VCC"): (13, 10), ("J4", "SDA"): (13, 11), ("J4", "SCL"): (13, 12),
-    # PZEM headers on the right edge, diode-OR and pull-up beside them
-    ("J2", "VCC"): (23, 9), ("J2", "RX"): (23, 10), ("J2", "TX"): (23, 11), ("J2", "GND"): (23, 12),
-    ("J3", "VCC"): (23, 14), ("J3", "RX"): (23, 15), ("J3", "TX"): (23, 16), ("J3", "GND"): (23, 17),
-    ("D1", "C"): (22, 11), ("D1", "A"): (22, 14),
-    ("D2", "C"): (22, 16), ("D2", "A"): (22, 19),
-    ("R1", "2"): (21, 14), ("R1", "1"): (21, 18),
+    # mains, bottom left: J1 feeds the HLK-PM01's AC pins (HLK stands vertically, AC end down)
+    ("J1", "N"): (0, 22), ("J1", "L"): (0, 24),
+    ("PS1", "AC1"): (5, 24), ("PS1", "AC2"): (7, 24), ("PS1", "-VO"): (3, 12), ("PS1", "+VO"): (9, 12),
+    # buttons and relays along the bottom edge, each signal pin straight below its GPIO
+    ("J7", "GND"): (17, 25), ("J7", "SW1"): (18, 25), ("J7", "SW2"): (19, 25),
+    ("J5", "IN"): (20, 25), ("J5", "DC-"): (21, 25), ("J5", "DC+"): (22, 25),
+    ("J6", "IN"): (24, 25), ("J6", "DC-"): (25, 25), ("J6", "DC+"): (26, 25),
+    # PZEM headers on the right edge
+    ("J2", "VCC"): (30, 13), ("J2", "RX"): (30, 14), ("J2", "TX"): (30, 15), ("J2", "GND"): (30, 16),
+    ("J3", "VCC"): (30, 19), ("J3", "RX"): (30, 20), ("J3", "TX"): (30, 21), ("J3", "GND"): (30, 22),
+    # LCD header on the left edge beside the level shifter
+    ("J4", "GND"): (0, 2), ("J4", "VCC"): (0, 3), ("J4", "SDA"): (0, 4), ("J4", "SCL"): (0, 5),
+    # PZEM TX diode-OR and pull-up, beside the PZEM headers
+    ("D1", "A"): (24, 15), ("D1", "C"): (27, 15),
+    ("D2", "A"): (24, 17), ("D2", "C"): (27, 17),
+    ("R1", "1"): (22, 13), ("R1", "2"): (22, 17),
 })
-for i, nm in enumerate(["HV1", "HV2", "HV", "GND@2", "HV3", "HV4"]):
-    PLACE[("U2", nm)] = (15 + i, 9)
+# level shifter in the top-left corner: LV row on the right (toward GPIO22/23 and 3V3),
+# HV row on the left (toward the LCD header and the HLK's 5 V); channel 1 at the bottom
 for i, nm in enumerate(["LV1", "LV2", "LV", "GND@1", "LV3", "LV4"]):
-    PLACE[("U2", nm)] = (15 + i, 13)
+    PLACE[("U2", nm)] = (9, 6 - i)
+for i, nm in enumerate(["HV1", "HV2", "HV", "GND@2", "HV3", "HV4"]):
+    PLACE[("U2", nm)] = (5, 6 - i)
 
 # body outlines on top, in hole units (x1, y1, x2, y2, label)
 BODIES = {
-    "U1": (0.3, 18.4, 23.9, 29.6, "ESP32 DevKitC on female headers"),
-    "PS1": (7.3, 0.0, 20.7, 7.95, "HLK-PM01"),
-    "U2": (14.45, 8.4, 20.55, 13.6, "Level shifter"),
-    "J1": (-0.5, 0.0, 2.5, 4.0, "AC in (from inline fuse)"),
-    "J6": (5.5, 16.5, 8.5, 17.5, "Relay 2"), "J5": (9.5, 16.5, 12.5, 17.5, "Relay 1"), "J7": (12.5, 16.5, 15.5, 17.5, "Buttons"),
-    "J4": (12.5, 8.5, 13.5, 12.5, "LCD"),
-    "J2": (22.5, 8.5, 23.5, 12.5, "PZEM1"), "J3": (22.5, 13.5, 23.5, 17.5, "PZEM2"),
-    "D1": (21.6, 11.7, 22.4, 13.3, "D1"), "D2": (21.6, 16.7, 22.4, 18.3, "D2"), "R1": (20.5, 14.7, 21.5, 17.3, "R1"),
+    "U1": (11.25, -0.6, 31.5, 10.6, "ESP32 WROOM-32UE on female headers (USB-C at the right end)"),
+    "PS1": (2.02, 11.3, 9.98, 24.7, "HLK-PM01"),
+    "U2": (4.36, 0.45, 9.64, 6.55, "Level shifter"),
+    "J1": (-1.5, 21.0, 1.5, 25.0, "AC in (from inline fuse)"),
+    "J4": (-0.5, 1.5, 0.5, 5.5, "LCD"),
+    "J7": (16.5, 24.5, 19.5, 25.5, "Buttons"), "J5": (19.5, 24.5, 22.5, 25.5, "Relay 1"), "J6": (23.5, 24.5, 26.5, 25.5, "Relay 2"),
+    "J2": (29.5, 12.5, 30.5, 16.5, "PZEM1"), "J3": (29.5, 18.5, 30.5, 22.5, "PZEM2"),
+    "D1": (24.7, 14.6, 26.3, 15.4, "D1"), "D2": (24.7, 16.6, 26.3, 17.4, "D2"), "R1": (21.5, 13.7, 22.5, 16.3, "R1"),
 }
 UNDER_MODULE = set()
 
 
-def colname(x):
-    return "ABCDEFGHIJKLMNOPQRSTUVWX"[x]
-
-
 def hole(p):
-    return f"{colname(p[0])}{p[1] + 1}"
+    """Printed hole name: letter (A at the bottom) then number (1 at the left)."""
+    return f"{LETTERS[H - 1 - p[1]]}{p[0] + 1}"
 
 
 def runs(path):
@@ -203,7 +210,7 @@ def best_layout(tries=300):
 if __name__ == "__main__":
     (crossings, bends, length), order, wires = best_layout(int(sys.argv[2]) if len(sys.argv) > 2 else 300)
     data = {
-        "board": {"cols": W, "rows": H, "clearance_holes": CLEAR, "mains_zone": list(MAINS_ZONE_MAX)},
+        "board": {"cols": W, "rows": H, "clearance_holes": CLEAR, "mains_rect": list(MAINS_RECT)},
         "pins": [{"part": p, "pin": pin, "hole": hole(xy), "x": xy[0], "y": xy[1]} for (p, pin), xy in PLACE.items()],
         "bodies": {k: {"x1": v[0], "y1": v[1], "x2": v[2], "y2": v[3], "label": v[4], "under_module": k in UNDER_MODULE} for k, v in BODIES.items()},
         "nets": {},

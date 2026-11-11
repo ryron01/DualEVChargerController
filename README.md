@@ -187,15 +187,20 @@ The schematic is generated and checked by the scripts in [`tools/schematic`](too
 
 ## Perfboard build
 
-[`hardware/perfboard/perfboard-guide.html`](hardware/perfboard/perfboard-guide.html) is a soldering guide for building the controller on a 24 × 30 hole (70 × 90 mm) plain perfboard. Open it in a browser. It shows the parts by hole position (columns A–X, rows 1–30), a mirrored view of the wiring side, and a wire list you can tick off. The layout comes from the same netlist as the schematic and is checked by `tools/schematic/verify_perfboard.py`.
+[`hardware/perfboard/perfboard-guide.html`](hardware/perfboard/perfboard-guide.html) is a soldering guide for building the controller on a 70 × 90 mm plain perfboard with 26 × 31 holes (printed A–Z and 1–31). Open it in a browser. The board is drawn as it sits in the enclosure, with the 90 mm side left to right: a quarter turn left from how it is printed, so numbers 1–31 run left to right and letters A–Z run bottom to top. The guide shows the parts by printed hole name (A1 is the bottom-left hole), a mirrored view of the wiring side, and a wire list you can tick off. The layout comes from the same netlist as the schematic and is checked by `tools/schematic/verify_perfboard.py`.
 
-| Top, component side | Bottom, wiring side (mirrored) |
-| --- | --- |
-| ![Perfboard top](hardware/perfboard/perfboard-top.svg) | ![Perfboard bottom](hardware/perfboard/perfboard-bottom.svg) |
+Top, component side:
 
-- **Mains zone.** Columns A–I, rows 1–7 carry 120 V from J1 to the HLK-PM01. Feed J1 only from the inline fuse, and use insulated wire rated 300 V or more there. Every low-voltage hole is at least 11 mm from any mains hole.
+![Perfboard top](hardware/perfboard/perfboard-top.svg)
+
+Bottom, wiring side (mirrored):
+
+![Perfboard bottom](hardware/perfboard/perfboard-bottom.svg)
+
+- **Mains zone.** The bottom-left corner (letters A–F, numbers 1–9) carries 120 V from J1 to the HLK-PM01, which stands with its AC end down. Feed J1 only from the inline fuse, and use insulated wire rated 300 V or more there. Every low-voltage hole is at least 25 mm from any mains hole.
 - **Wiring.** Every connection is an insulated wire on the bottom. Wires may cross each other but never pass over another net's pad.
-- **Modules.** The ESP32 and the level shifter plug into female headers. The ESP32's USB end faces the left edge.
+- **Layout.** The ESP32 (Lonely Binary, WROOM-32UE) runs across the top with its pin 20–38 row along the top edge, which puts the antenna connector a few millimetres from the board's upper edge; USB-C comes out the right edge. The level shifter and LCD header sit in the top-left corner, the button and relay headers along the bottom edge, and the PZEM headers on the right edge.
+- **Modules.** The ESP32 and the level shifter plug into female headers.
 - **HLK-PM01.** Its pins are 29.4 mm end to end and the holes 30.5 mm apart, so bend each pin out about 0.5 mm.
 
 To regenerate after a placement or wiring change:

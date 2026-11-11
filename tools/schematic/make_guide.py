@@ -14,8 +14,12 @@ g = json.load(open(os.path.join(out, "guide-data.json")))
 top = open(os.path.join(out, "top-inline.svg")).read()
 bottom = open(os.path.join(out, "bottom-inline.svg")).read()
 nwires = len(g["rows"])
-zone = json.load(open(os.path.join(out, "layout.json")))["board"]["mains_zone"]
-zone_txt = f"columns A–{'ABCDEFGHIJKLMNOPQRSTUVWX'[zone[0]]}, rows 1–{zone[1] + 1}"
+layout = json.load(open(os.path.join(out, "layout.json")))
+LET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+H = layout["board"]["rows"]
+zx1, zy1, zx2, zy2 = layout["board"]["mains_rect"]
+zone_txt = f"numbers {zx1 + 1}–{zx2 + 1}, letters {LET[H - 1 - zy2]}–{LET[H - 1 - zy1]}"
+hole_of = {f"{p['part']}.{p['pin']}": p["hole"] for p in layout["pins"]}
 
 legend = "".join(
     f'<button type="button" class="chip" data-net="{escape(n)}" aria-pressed="false"><i style="background:{c}"></i>{escape(n)}</button>'
@@ -113,15 +117,15 @@ svg.pb .wire{{transition:opacity .15s}}
 <div class="wrap">
   <header>
     <h1>EV Charger Perfboard</h1>
-    <span class="meta">24 × 30 plain perfboard · {nwires} wires · from the bench netlist</span>
+    <span class="meta">70 × 90 mm perfboard, 26 × 31 holes · {nwires} wires · from the bench netlist</span>
   </header>
-  <p>Parts go on the top. Every connection is an insulated wire on the bottom, soldered at both ends. Holes are named by column letter and row number, as on the board edges. The bottom view is mirrored, so it matches the board when you flip it left to right. Click a wire in the lists to find it on both views.</p>
+  <p>Parts go on the top. Every connection is an insulated wire on the bottom, soldered at both ends. The board is drawn as it sits in the enclosure, a quarter turn left from how it is printed: numbers 1–31 run left to right and letters A–Z run bottom to top. Holes use the printed names, letter then number, so A1 is the bottom-left hole. The bottom view is mirrored, so it matches the board when you flip it left to right. Click a wire in the lists to find it on both views.</p>
 
   <div class="notes">
     <div class="note warn"><b>Mains zone.</b> The hatched area ({zone_txt}) carries 120 V from J1 to the HLK-PM01. The board has no fuse of its own, so feed J1 only from the inline 1 A fuse. Use insulated wire rated 300 V or more there, and run nothing else through it. Low-voltage parts and wires stay at least 10 mm from any mains hole.</div>
     <div class="note"><b>Wire.</b> 24–26 AWG insulated (silicone or PTFE) for low voltage; 20 AWG rated 300 V for mains. Wires may cross each other on the bottom; the routes shown avoid other nets' pads.</div>
-    <div class="note"><b>Diodes.</b> The band (cathode) faces the PZEM header: D1 band at W12, D2 band at W17. Reversed diodes put 5 V on GPIO16 and block replies.</div>
-    <div class="note"><b>Modules on headers.</b> The ESP32 and level shifter sit in female headers. Unused ESP32 pins still get a header socket; some wires pass under those joints on the bottom.</div>
+    <div class="note"><b>Diodes.</b> The band (cathode) faces the PZEM header: D1 band at {hole_of["D1.C"]}, D2 band at {hole_of["D2.C"]}. Reversed diodes put 5 V on GPIO16 and block replies.</div>
+    <div class="note"><b>Modules on headers.</b> The ESP32 and level shifter sit in female headers. Unused ESP32 pins still get a header socket; some wires pass under those joints on the bottom. The ESP32’s antenna connector ends up near the top-left of the module, a few millimetres from the board’s top edge.</div>
   </div>
 
   <section>

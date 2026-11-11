@@ -10,7 +10,8 @@ from html import escape
 
 P = 22            # hole pitch in px
 M = 34            # margin for labels
-COLS = "ABCDEFGHIJKLMNOPQRSTUVWX"
+LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+BOARD_H = 26   # set from the layout in svg() and build()
 
 NET_COLOR = {
     "AC_L": "#b23a12", "AC_N": "#1e3a8a",
@@ -24,7 +25,8 @@ STEP_NAMES = {1: "Mains wiring", 2: "Power and ground", 3: "Signals"}
 
 
 def hole(x, y):
-    return f"{COLS[x]}{y + 1}"
+    """Printed hole name: letter (A at the bottom of the drawing) then number (1 at the left)."""
+    return f"{LETTERS[BOARD_H - 1 - y]}{x + 1}"
 
 
 def px(x, y, mirror, W):
@@ -40,19 +42,22 @@ def svg(d, mirror):
              '<line x1="0" y1="0" x2="0" y2="6" stroke="#b42318" stroke-width="2" stroke-opacity="0.35"/></pattern></defs>')
     o.append(f'<rect x="4" y="4" width="{w - 8}" height="{h - 8}" rx="8" fill="#d8c48f" stroke="#a8935c"/>')
     # mains zone
-    x1, y1 = px(0, 0, mirror, W)
-    x2, y2 = px(*d["board"]["mains_zone"], mirror, W)
+    global BOARD_H
+    BOARD_H = H
+    r = d["board"]["mains_rect"]
+    x1, y1 = px(r[0], r[1], mirror, W)
+    x2, y2 = px(r[2], r[3], mirror, W)
     zx, zy = min(x1, x2) - P / 2, y1 - P / 2
     o.append(f'<rect x="{zx}" y="{zy}" width="{abs(x2 - x1) + P}" height="{y2 - y1 + P}" fill="url(#hatch)" stroke="#b42318" stroke-dasharray="5 4" rx="4"/>')
     # labels
     for x in range(W):
         cx, _ = px(x, 0, mirror, W)
-        o.append(f'<text x="{cx}" y="{M - 16}" class="ax">{COLS[x]}</text>')
-        o.append(f'<text x="{cx}" y="{h - M + 24}" class="ax">{COLS[x]}</text>')
+        o.append(f'<text x="{cx}" y="{M - 16}" class="ax">{x + 1}</text>')
+        o.append(f'<text x="{cx}" y="{h - M + 24}" class="ax">{x + 1}</text>')
     for y in range(H):
         _, cy = px(0, y, mirror, W)
-        o.append(f'<text x="{M - 18}" y="{cy + 4}" class="ax">{y + 1}</text>')
-        o.append(f'<text x="{w - M + 18}" y="{cy + 4}" class="ax">{y + 1}</text>')
+        o.append(f'<text x="{M - 18}" y="{cy + 4}" class="ax">{LETTERS[H - 1 - y]}</text>')
+        o.append(f'<text x="{w - M + 18}" y="{cy + 4}" class="ax">{LETTERS[H - 1 - y]}</text>')
     pins = {(p["x"], p["y"]): p for p in d["pins"]}
     net_of = {}
     for n, nd in d["nets"].items():
@@ -109,6 +114,8 @@ def svg(d, mirror):
 
 
 def build(d, outdir):
+    global BOARD_H
+    BOARD_H = d["board"]["rows"]
     os.makedirs(outdir, exist_ok=True)
     top, bottom = svg(d, False), svg(d, True)
     css_svg = ('.ax{font:600 10px ui-monospace,Menlo,monospace;fill:#5a4a2a;text-anchor:middle}'
@@ -141,14 +148,14 @@ def build(d, outdir):
         ("D1", "BAT43 Schottky", f"Cathode band at {D1['C']} (next to PZEM1 TX), anode at {D1['A']}"),
         ("D2", "BAT43 Schottky", f"Cathode band at {D2['C']} (next to PZEM2 TX), anode at {D2['A']}"),
         ("R1", "10 kΩ", f"{R1['1']} (3V3 side) to {R1['2']} (diode junction), standing or flat"),
-        ("U1", "2 × 1×19 female headers for the ESP32", f"Inner row {U1['EXT_5V']}–{U1['3V3']} (5V end at {U1['EXT_5V']}, 3V3 at {U1['3V3']}); outer row {U1['CLK']}–{U1['GND3']}. USB faces the left edge."),
-        ("U2", "2 × 1×6 female headers for the level shifter", f"HV row {U2['HV1']}–{U2['HV4']} (HV1 at {U2['HV1']}), LV row {U2['LV1']}–{U2['LV4']}"),
+        ("U1", "2 × 1×19 female headers for the ESP32", f"Top row {U1['GND3']}–{U1['CLK']} along the board's top edge (pads 38–20); lower row {U1['3V3']}–{U1['EXT_5V']} (3V3 at {U1['3V3']}, 5V at {U1['EXT_5V']}). Antenna connector toward the top-left, USB-C at the right edge."),
+        ("U2", "2 × 1×6 female headers for the level shifter", f"LV row {U2['LV1']}–{U2['LV4']} toward the ESP32 (LV1 at {U2['LV1']}), HV row {U2['HV1']}–{U2['HV4']} toward the LCD header"),
         ("J4", "1×4 header, LCD", f"GND {J['J4']['GND']}, VCC {J['J4']['VCC']}, SDA {J['J4']['SDA']}, SCL {J['J4']['SCL']}"),
         ("J2", "1×4 header, PZEM1", f"VCC {J['J2']['VCC']}, RX {J['J2']['RX']}, TX {J['J2']['TX']}, GND {J['J2']['GND']}"),
         ("J3", "1×4 header, PZEM2", f"VCC {J['J3']['VCC']}, RX {J['J3']['RX']}, TX {J['J3']['TX']}, GND {J['J3']['GND']}"),
         ("J5", "1×3 header, relay 1", f"DC+ {J['J5']['DC+']}, DC− {J['J5']['DC-']}, IN {J['J5']['IN']}"),
         ("J6", "1×3 header, relay 2", f"DC+ {J['J6']['DC+']}, DC− {J['J6']['DC-']}, IN {J['J6']['IN']}"),
-        ("J7", "1×3 header, panel buttons", f"SW2 {J['J7']['SW2']}, SW1 {J['J7']['SW1']}, GND {J['J7']['GND']} (pin 1 = GND at the right end)"),
+        ("J7", "1×3 header, panel buttons", f"SW2 {J['J7']['SW2']}, SW1 {J['J7']['SW1']}, GND {J['J7']['GND']}"),
         ("J1", "2-way 5.08 mm screw terminal, AC in from the inline fuse", f"L {J['J1']['L']}, N {J['J1']['N']}"),
         ("PS1", "HLK-PM01", f"AC1 {PS1['AC1']}, AC2 {PS1['AC2']}, −Vo {PS1['-VO']}, +Vo {PS1['+VO']}. Its pins are 29.4 mm end to end and the holes 30.5 mm, so bend each pin out about 0.5 mm."),
     ]
