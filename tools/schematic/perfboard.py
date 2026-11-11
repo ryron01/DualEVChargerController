@@ -42,8 +42,9 @@ PLACE.update({
     # mains, bottom left: J1 feeds the HLK-PM01's AC pins (HLK stands vertically, AC end down)
     ("J1", "N"): (0, 22), ("J1", "L"): (0, 24),
     ("PS1", "AC1"): (5, 24), ("PS1", "AC2"): (7, 24), ("PS1", "-VO"): (3, 12), ("PS1", "+VO"): (9, 12),
-    # buttons and relays along the bottom edge, each signal pin straight below its GPIO
-    ("J7", "GND"): (17, 25), ("J7", "SW1"): (18, 25), ("J7", "SW2"): (19, 25),
+    # panel buttons on the left edge, just below the LCD header (both go to the enclosure door)
+    ("J7", "GND"): (0, 7), ("J7", "SW1"): (0, 8), ("J7", "SW2"): (0, 9),
+    # relays along the bottom edge, each signal pin straight below its GPIO
     ("J5", "IN"): (20, 25), ("J5", "DC-"): (21, 25), ("J5", "DC+"): (22, 25),
     ("J6", "IN"): (24, 25), ("J6", "DC-"): (25, 25), ("J6", "DC+"): (26, 25),
     # PZEM headers on the right edge
@@ -70,7 +71,7 @@ BODIES = {
     "U2": (4.36, 0.45, 9.64, 6.55, "Level shifter"),
     "J1": (-1.5, 21.0, 1.5, 25.0, "AC in (from inline fuse)"),
     "J4": (-0.5, 1.5, 0.5, 5.5, "LCD"),
-    "J7": (16.5, 24.5, 19.5, 25.5, "Buttons"), "J5": (19.5, 24.5, 22.5, 25.5, "Relay 1"), "J6": (23.5, 24.5, 26.5, 25.5, "Relay 2"),
+    "J7": (-0.5, 6.5, 0.5, 9.5, "Buttons"), "J5": (19.5, 24.5, 22.5, 25.5, "Relay 1"), "J6": (23.5, 24.5, 26.5, 25.5, "Relay 2"),
     "J2": (29.5, 12.5, 30.5, 16.5, "PZEM1"), "J3": (29.5, 18.5, 30.5, 22.5, "PZEM2"),
     "D1": (24.7, 14.6, 26.3, 15.4, "D1"), "D2": (24.7, 16.6, 26.3, 17.4, "D2"), "R1": (21.5, 13.7, 22.5, 16.3, "R1"),
 }

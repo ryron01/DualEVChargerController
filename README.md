@@ -197,9 +197,9 @@ Bottom, wiring side (mirrored):
 
 ![Perfboard bottom](hardware/perfboard/perfboard-bottom.svg)
 
-- **Mains zone.** The bottom-left corner (letters A–F, numbers 1–9) carries 120 V from J1 to the HLK-PM01, which stands with its AC end down. Feed J1 only from the inline fuse, and use insulated wire rated 300 V or more there. Every low-voltage hole is at least 25 mm from any mains hole.
+- **Mains zone.** The bottom-left corner (letters A–F, numbers 1–9) carries 120 V from J1 to the HLK-PM01, which stands with its AC end down. Feed J1 only from the inline fuse, and use insulated wire rated 300 V or more there. Every low-voltage hole is at least 20 mm from any mains hole.
 - **Wiring.** Every connection is an insulated wire on the bottom. Wires may cross each other but never pass over another net's pad.
-- **Layout.** The ESP32 (Lonely Binary, WROOM-32UE) runs across the top with its pin 20–38 row along the top edge, which puts the antenna connector a few millimetres from the board's upper edge; USB-C comes out the right edge. The level shifter and LCD header sit in the top-left corner, the button and relay headers along the bottom edge, and the PZEM headers on the right edge.
+- **Layout.** The ESP32 (Lonely Binary, WROOM-32UE) runs across the top with its pin 20–38 row along the top edge, which puts the antenna connector a few millimetres from the board's upper edge; USB-C comes out the right edge. The level shifter sits in the top-left corner with the LCD and panel button headers beside it on the left edge, so the wires to the enclosure door leave together. The relay headers are along the bottom edge, each signal pin under its GPIO, and the PZEM headers are on the right edge.
 - **Modules.** The ESP32 and the level shifter plug into female headers.
 - **HLK-PM01.** Its pins are 29.4 mm end to end and the holes 30.5 mm apart, so bend each pin out about 0.5 mm.
 
