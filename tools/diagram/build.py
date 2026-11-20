@@ -15,9 +15,9 @@ standalone_css = '''<style>
 .w{fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:2}
 .heavy{stroke-width:3.6}
 .hot{stroke:#d23b2a}.neu{stroke:#7c8794}.gnd_ac{stroke:#2f9e44}.ctl{stroke:#c98a00;stroke-dasharray:5 3}
-.v5{stroke:#c2255c}.gndl{stroke:#343a40}.v33{stroke:#e07d00}.tx{stroke:#1971c2}.rx{stroke:#0b7285}.i2c{stroke:#7048e8}.i2c5{stroke:#7048e8;stroke-dasharray:6 3}.relay{stroke:#a05a2c}.sw{stroke:#5f3dc4}
+.v5{stroke:#d23b2a}.gndl{stroke:#2b2d31}.gndw{stroke:#f8f9fa}.casing{stroke:#868e96;stroke-width:4}.v33{stroke:#e8590c}.tx{stroke:#1c7ed6}.rx{stroke:#0ca5a0}.sda{stroke:#1c7ed6}.scl{stroke:#e0a800}.i5{stroke-dasharray:6 3}.relay{stroke:#e0a800}.sw1{stroke:#0ca5a0}.sw2{stroke:#1c7ed6}
 .rail{stroke-width:4}
-.dot.v5{fill:#c2255c}.dot.gndl{fill:#343a40}.dot.v33{fill:#e07d00}.dot.tx{fill:#1971c2}.dot.rx{fill:#0b7285}
+.dot.v5{fill:#d23b2a}.dot.gndl{fill:#2b2d31}.dot.gndw{fill:#f8f9fa;stroke:#868e96}.dot.v33{fill:#e8590c}.dot.tx{fill:#1c7ed6}.dot.rx{fill:#0ca5a0}
 text{font-family:"IBM Plex Sans","Segoe UI",Helvetica,Arial,sans-serif}
 .lbl{font-size:12px;fill:#1b211d}
 .cname{font-size:14px;font-weight:600}.cname2{font-size:14px;font-weight:600;fill:#1b211d}.cnamew{font-size:14px;font-weight:600;fill:#fff}
@@ -43,6 +43,13 @@ def main():
         print(f"wrote {png}")
     else:
         print("rsvg-convert not found; skipped PNG (brew install librsvg)")
+    # keep the interactive page in step: swap in the new drawing, styled by the page's own CSS variables
+    page = DOCS / "bench-wiring.html"
+    html = page.read_text()
+    start = html.index('<div class="sheet">\n') + len('<div class="sheet">\n')
+    end = html.index("</svg>", start) + len("</svg>")
+    page.write_text(html[:start] + raw.replace("%%STYLE%%", "") + html[end:])
+    print(f"updated {page}")
 
 
 if __name__ == "__main__":

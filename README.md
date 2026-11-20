@@ -218,6 +218,18 @@ python make_harness.py ../../hardware/perfboard/layout.json ../../hardware/perfb
 
 [`hardware/perfboard/harness-guide.html`](hardware/perfboard/harness-guide.html) covers the six low-voltage cables from the board to the PZEMs, the relay modules, the LCD and the panel buttons. Each cable gets an end-to-end pin diagram, a wire list you can tick off, a rough cut length, and a meter test to run before plugging in a module. Every cable is straight through by pin name; the relay terminals on the board run in the opposite order to the relay modules, so match by name, not position. Board-end hole names come from `layout.json`, so the guide stays in step with the soldering guide.
 
+Wire colours, as built (the bench diagram and the perfboard guide use the same colours for these signals):
+
+| Signal | Colour |
+| --- | --- |
+| +5 V (every cable) | Red |
+| Ground (PZEMs, relays, LCD) | Black |
+| Ground (panel buttons) | White |
+| PZEM RX, button 1 | Teal |
+| PZEM TX, LCD SDA, button 2 | Blue |
+| Relay IN, LCD SCL | Yellow |
+| +3.3 V (on the board only) | Orange |
+
 ## Bill of materials
 
 | Qty | Part | Notes |

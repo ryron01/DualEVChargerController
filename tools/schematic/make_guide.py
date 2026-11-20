@@ -119,7 +119,7 @@ svg.pb .wire{{transition:opacity .15s}}
     <h1>EV Charger Perfboard</h1>
     <span class="meta">70 × 90 mm perfboard, 26 × 31 holes · {nwires} wires · from the bench netlist</span>
   </header>
-  <p>Parts go on the top. Every connection is an insulated wire on the bottom, soldered at both ends. The board is drawn as it sits in the enclosure, a quarter turn left from how it is printed: numbers 1–31 run left to right and letters A–Z run bottom to top. Holes use the printed names, letter then number, so A1 is the bottom-left hole. The bottom view is mirrored, so it matches the board when you flip it left to right. Click a wire in the lists to find it on both views.</p>
+  <p>Parts go on the top. Every connection is an insulated wire on the bottom, soldered at both ends. The board is drawn as it sits in the enclosure, a quarter turn left from how it is printed: numbers 1–31 run left to right and letters A–Z run bottom to top. Holes use the printed names, letter then number, so A1 is the bottom-left hole. The bottom view is mirrored, so it matches the board when you flip it left to right. Wire colours follow the harnesses: red +5 V, black ground, blue PZEM TX and SDA, teal PZEM RX, yellow relay IN and SCL, orange +3.3 V. Click a wire in the lists to find it on both views.</p>
 
   <div class="notes">
     <div class="note warn"><b>Mains zone.</b> The hatched area ({zone_txt}) carries 120 V from J1 to the HLK-PM01. The board has no fuse of its own, so feed J1 only from the inline 1 A fuse. Use insulated wire rated 300 V or more there, and run nothing else through it. Low-voltage parts and wires stay at least 10 mm from any mains hole.</div>

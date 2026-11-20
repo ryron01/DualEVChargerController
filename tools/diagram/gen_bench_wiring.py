@@ -38,6 +38,7 @@ def seg_cross(a, b):
 
 
 def wire(cls, pts, hop=True):
+    casing = "gndw" in cls.split()      # white wire: draw a grey edge under it so it shows on a light page
     d = f"M{pts[0][0]} {pts[0][1]}"
     segs = []
     for (x1, y1), (x2, y2) in zip(pts, pts[1:]):
@@ -61,6 +62,8 @@ def wire(cls, pts, hop=True):
         d += f" L{x2} {y2}"
         segs.append(s)
     drawn.extend(segs)
+    if casing:
+        wires_svg.append(f'<path class="w casing" d="{d}"/>')
     wires_svg.append(f'<path class="w {cls}" d="{d}"/>')
 
 
@@ -402,10 +405,10 @@ dot(995, 708, "gndl")
 wire("v33", [(1020, 790), (1020, 726)])
 dot(1020, 726, "v33")
 # LCD
-wire("i2c5", [(340, 880), (400, 880)])
-wire("i2c5", [(340, 900), (400, 900)])
-wire("i2c", [(550, 880), (620, 880)])
-wire("i2c", [(550, 900), (620, 900)])
+wire("sda i5", [(340, 880), (400, 880)])
+wire("scl i5", [(340, 900), (400, 900)])
+wire("sda", [(550, 880), (620, 880)])
+wire("scl", [(550, 900), (620, 900)])
 wire("v5", [(340, 860), (358, 860), (358, 800), (300, 800), (300, 690)])
 dot(300, 690, "v5")
 wire("gndl", [(340, 840), (348, 840), (348, 812), (330, 812), (330, 708)])
@@ -419,10 +422,10 @@ wire("v33", [(530, 830), (530, 726)])
 dot(530, 726, "v33")
 
 # panel switches (INPUT_PULLUP, switch to GND)
-wire("sw", [(1040, 874), (1100, 874)])
-wire("sw", [(1040, 900), (1070, 900), (1070, 900), (1100, 900)])
-wire("gndl", [(1175, 830), (1175, 708)])
-dot(1175, 708, "gndl")
+wire("sw1", [(1040, 874), (1100, 874)])
+wire("sw2", [(1040, 900), (1070, 900), (1070, 900), (1100, 900)])
+wire("gndw", [(1175, 830), (1175, 708)])
+dot(1175, 708, "gndw")
 # junction callout
 out.append('<rect x="752" y="926" width="0" height="0"/>')
 

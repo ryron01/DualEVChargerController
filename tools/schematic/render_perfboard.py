@@ -13,12 +13,16 @@ M = 34            # margin for labels
 LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 BOARD_H = 26   # set from the layout in svg() and build()
 
+# Low-voltage nets use the harness colour of the signal they carry (as built):
+# red +5 V, black ground, blue PZEM TX / SDA / button 2, teal PZEM RX / button 1,
+# yellow relay IN / SCL. +3.3 V never leaves the board, so it stays orange. AC nets unchanged.
+RED, BLACK, BLUE, TEAL, YELLOW, ORANGE = "#d23b2a", "#2b2d31", "#1c7ed6", "#0ca5a0", "#e0a800", "#e8590c"
 NET_COLOR = {
     "AC_L": "#b23a12", "AC_N": "#1e3a8a",
-    "+5V": "#d6336c", "GND": "#1f2328", "+3V3": "#e8590c",
-    "PZEM_TX": "#0b7285", "PZEM1_TX": "#1098ad", "PZEM2_TX": "#15aabf", "PZEM_RX": "#5c7cfa",
-    "RELAY1": "#2f9e44", "RELAY2": "#66a80f", "SW1": "#9c36b5", "SW2": "#cc5de8",
-    "SDA_3V3": "#7048e8", "SCL_3V3": "#845ef7", "SDA_5V": "#ae3ec9", "SCL_5V": "#be4bdb",
+    "+5V": RED, "GND": BLACK, "+3V3": ORANGE,
+    "PZEM_TX": BLUE, "PZEM1_TX": BLUE, "PZEM2_TX": BLUE, "PZEM_RX": TEAL,
+    "RELAY1": YELLOW, "RELAY2": YELLOW, "SW1": TEAL, "SW2": BLUE,
+    "SDA_3V3": BLUE, "SCL_3V3": YELLOW, "SDA_5V": BLUE, "SCL_5V": YELLOW,
 }
 STEP = {"AC_L": 1, "AC_N": 1, "+5V": 2, "GND": 2, "+3V3": 2}
 STEP_NAMES = {1: "Mains wiring", 2: "Power and ground", 3: "Signals"}
@@ -87,6 +91,8 @@ def svg(d, mirror):
             pts = " ".join(f"{px(x, y, mirror, W)[0]},{px(x, y, mirror, W)[1]}" for x, y in wdef["path"])
             wid = f"w-{n}-{i}"
             if mirror:
+                o.append(f'<polyline class="casing" points="{pts}" fill="none" stroke="#3b2f1a" stroke-opacity="0.55" '
+                         f'stroke-width="5.4" stroke-linecap="round" stroke-linejoin="round"/>')
                 o.append(f'<polyline class="wire" data-w="{escape(wid)}" data-net="{escape(n)}" points="{pts}" fill="none" stroke="{col}" '
                          f'stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><title>{escape(n)}: {escape(wdef["from"])} to {escape(wdef["to"])}</title></polyline>')
             else:

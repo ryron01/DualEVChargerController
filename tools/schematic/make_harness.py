@@ -12,29 +12,32 @@ layout = json.load(open(sys.argv[1]))
 out = sys.argv[2]
 hole = {f"{p['part']}.{p['pin']}": p["hole"] for p in layout["pins"]}
 
-RED, BLK, GRN, YEL, BLU, WHT = "red", "black", "green", "yellow", "blue", "white"
+# as-built colours, read from the finished enclosure
+RED, BLK, TEAL, YEL, BLU, WHT = "red", "black", "teal", "yellow", "blue", "white"
 
 # far-end pin order is the order printed on each module, top to bottom / left to right
 HARNESSES = [
     {
         "id": "pzem1", "name": "PZEM 1", "wires": 4, "board": "J2", "edge": "right edge",
-        "board_conn": "4-pin XH socket", "far": "PZEM 1 TTL header", "far_conn": "4-way housing to suit the PZEM's TTL header (Dupont if it has bare pins)",
+        "board_conn": "4-pin JST-XH socket", "far": "PZEM 1 TTL header", "far_conn": "4-pin JST-XH housing (2.50 mm pitch); the socket is printed VCC, RX, TX, GND",
         "far_order": ["VCC", "RX", "TX", "GND"], "est_cm": 9, "cut_cm": 15,
         "map": "pzem1",
-        "pins": [("VCC", "VCC", RED, "+5 V"), ("RX", "RX", GRN, "ESP32 GPIO17 → PZEM"),
-                 ("TX", "TX", YEL, "PZEM → diode D1 → GPIO16"), ("GND", "GND", BLK, "Ground")],
-        "notes": ["The PZEM prints its supply pin as 5V; that is the VCC wire.", "Straight through: each wire goes to the pin with the same name. The board already crosses TX and RX, so don't swap them in the cable.",
+        "pins": [("VCC", "VCC", RED, "+5 V"), ("RX", "RX", TEAL, "ESP32 GPIO17 → PZEM"),
+                 ("TX", "TX", BLU, "PZEM → diode D1 → GPIO16"), ("GND", "GND", BLK, "Ground")],
+        "notes": ["Straight through: each wire goes to the pin with the same name. The board already crosses TX and RX, so don't swap them in the cable.",
+                  "Both ends are XH with the pins in the same order, so it is a 1-to-1 cable: VCC at one end of each housing, GND at the other. A ready-made XH lead works if it is the same-direction type (not reversed) and the board socket's latch faces the same way as the PZEM's; if not, check with a meter before plugging in.",
+                  "The silkscreen says VCC = 3.3–5.0 V, but keep it on 5 V. At 3.3 V the opto-isolator and its LED don't leave enough headroom, which is why it misbehaved on the bench.",
                   "Address 0x01 (car 1)."],
         "test": "With the PZEM unplugged and the board powered, VCC to GND at the PZEM end reads about 5 V. TX at the PZEM end reads 0 V, because the diode blocks 3.3 V from flowing back out of the board.",
     },
     {
         "id": "pzem2", "name": "PZEM 2", "wires": 4, "board": "J3", "edge": "right edge",
-        "board_conn": "4-pin XH socket", "far": "PZEM 2 TTL header", "far_conn": "4-way housing to suit the PZEM's TTL header (Dupont if it has bare pins)",
+        "board_conn": "4-pin JST-XH socket", "far": "PZEM 2 TTL header", "far_conn": "4-pin JST-XH housing (2.50 mm pitch); the socket is printed VCC, RX, TX, GND",
         "far_order": ["VCC", "RX", "TX", "GND"], "est_cm": 4, "cut_cm": 10,
         "map": "pzem2",
-        "pins": [("VCC", "VCC", RED, "+5 V"), ("RX", "RX", GRN, "ESP32 GPIO17 → PZEM"),
-                 ("TX", "TX", YEL, "PZEM → diode D2 → GPIO16"), ("GND", "GND", BLK, "Ground")],
-        "notes": ["Straight through, same as PZEM 1.", "Address 0x02 (car 2)."],
+        "pins": [("VCC", "VCC", RED, "+5 V"), ("RX", "RX", TEAL, "ESP32 GPIO17 → PZEM"),
+                 ("TX", "TX", BLU, "PZEM → diode D2 → GPIO16"), ("GND", "GND", BLK, "Ground")],
+        "notes": ["Straight through, 1-to-1, same as PZEM 1.", "Address 0x02 (car 2)."],
         "test": "Same as PZEM 1: about 5 V from VCC to GND at the PZEM end with the board powered.",
     },
     {
@@ -42,7 +45,7 @@ HARNESSES = [
         "board_conn": "3-way screw terminal", "far": "Relay 2 control terminal", "far_conn": "ferrules or tinned ends into the screw terminal",
         "far_order": ["DC+", "DC-", "IN"], "est_cm": 10, "cut_cm": 16,
         "map": "relay2",
-        "pins": [("DC+", "DC+", RED, "+5 V coil supply"), ("DC-", "DC-", BLK, "Ground"), ("IN", "IN", BLU, "ESP32 GPIO26")],
+        "pins": [("DC+", "DC+", RED, "+5 V coil supply"), ("DC-", "DC-", BLK, "Ground"), ("IN", "IN", YEL, "ESP32 GPIO26")],
         "notes": ["The board terminal runs IN, DC−, DC+ left to right, the reverse of the relay module. Match by name, not by position.",
                   "Relay module trigger jumper on H."],
         "test": "Turn on Car 2 Switch in Home Assistant: IN reads about 3.3 V to DC−, and the relay clicks.",
@@ -52,7 +55,7 @@ HARNESSES = [
         "board_conn": "3-way screw terminal", "far": "Relay 1 control terminal", "far_conn": "ferrules or tinned ends into the screw terminal",
         "far_order": ["DC+", "DC-", "IN"], "est_cm": 14, "cut_cm": 20,
         "map": "relay1",
-        "pins": [("DC+", "DC+", RED, "+5 V coil supply"), ("DC-", "DC-", BLK, "Ground"), ("IN", "IN", BLU, "ESP32 GPIO25")],
+        "pins": [("DC+", "DC+", RED, "+5 V coil supply"), ("DC-", "DC-", BLK, "Ground"), ("IN", "IN", YEL, "ESP32 GPIO25")],
         "notes": ["Same reversed order as relay 2: match by name.", "Relay module trigger jumper on H."],
         "test": "Turn on Car 1 Switch in Home Assistant: IN reads about 3.3 V to DC−, and the relay clicks. Relay 2 should drop out.",
     },
@@ -72,9 +75,9 @@ HARNESSES = [
         "board_conn": "3-pin XH socket", "far": "Two momentary buttons on the door", "far_conn": "solder or spade terminals on the buttons",
         "far_order": ["Car 1 button", "Car 2 button", "GND (both buttons)"], "est_cm": None, "cut_cm": None,
         "map": "door",
-        "pins": [("SW1", "Car 1 button", GRN, "ESP32 GPIO32"), ("SW2", "Car 2 button", WHT, "ESP32 GPIO33"),
-                 ("GND", "GND (both buttons)", BLK, "Common ground")],
-        "notes": ["Each button has two legs: one to its SW wire, the other to GND. Run GND to one button and add a short black jumper to the other.",
+        "pins": [("SW1", "Car 1 button", TEAL, "ESP32 GPIO32"), ("SW2", "Car 2 button", BLU, "ESP32 GPIO33"),
+                 ("GND", "GND (both buttons)", WHT, "Common ground")],
+        "notes": ["Each button has two legs: one to its SW wire, the other to GND. Run GND to one button and add a short white jumper to the other.",
                   "Use normally-open buttons. Bundle this cable with the LCD cable through the same hinge loop."],
         "test": "With the board powered and nothing pressed, SW1 and SW2 read about 3.3 V to GND. Pressing a button pulls its line to 0 V, and the ESPHome log shows Panel Button Car 1 or 2.",
     },
@@ -99,16 +102,16 @@ page = '''<title>EV Charger Harnesses</title>
 /* Layout: bench card per harness. Box map up top, then one card per cable in the order you'd build them, each with an end-to-end pin diagram, a wire table and a test. */
 :root{
   --bg:#f3f2ee; --panel:#ffffff; --fg:#1c1f1d; --muted:#626a64; --line:#d9d7cf; --accent:#1f6f43; --hl:#fff3bf; --box:#e9e7e1; --boxline:#b9b5aa;
-  --w-red:#d23b2a; --w-black:#2b2d31; --w-green:#2f9e44; --w-yellow:#e5b100; --w-blue:#1c7ed6; --w-white:#f8f9fa; --w-edge:#868e96;
+  --w-red:#d23b2a; --w-black:#2b2d31; --w-teal:#0ca5a0; --w-yellow:#e0a800; --w-blue:#1c7ed6; --w-white:#f8f9fa; --w-edge:#868e96;
   --display:"IBM Plex Sans Condensed","Arial Narrow",Arial,sans-serif;
   --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#131614; --panel:#1b1f1c; --fg:#e6e9e4; --muted:#9ba39c; --line:#2e342f; --accent:#5ccf8a; --hl:#3b3418; --box:#202520; --boxline:#3c443d;
-  --w-black:#c9ced3; --w-white:#f1f3f5; --w-edge:#adb5bd; color-scheme:dark}}
+  --w-red:#ff6b5b; --w-black:#c9ced3; --w-teal:#3bd1c6; --w-yellow:#ffd43b; --w-blue:#4dabf7; --w-white:#f1f3f5; --w-edge:#adb5bd; color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#131614; --panel:#1b1f1c; --fg:#e6e9e4; --muted:#9ba39c; --line:#2e342f; --accent:#5ccf8a; --hl:#3b3418; --box:#202520; --boxline:#3c443d;
-  --w-black:#c9ced3; --w-white:#f1f3f5; --w-edge:#adb5bd; color-scheme:dark}
+  --w-red:#ff6b5b; --w-black:#c9ced3; --w-teal:#3bd1c6; --w-yellow:#ffd43b; --w-blue:#4dabf7; --w-white:#f1f3f5; --w-edge:#adb5bd; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.55;margin:0}
 .wrap{max-width:1100px;margin:0 auto;padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
@@ -175,7 +178,7 @@ button.reset{font:500 .8rem var(--body);padding:5px 10px;border-radius:6px;borde
     <h1>EV Charger Harnesses</h1>
     <span class="meta">Signal side · 6 cables · 21 wires</span>
   </header>
-  <p>One card per cable, in build order: the short runs to the modules first, then the two door cables. Board-end hole names match the perfboard soldering guide (printed letter, then number). Lengths are rough, measured from your photo of the box; dry-fit each cable before you cut it.</p>
+  <p>One card per cable, in build order: the short runs to the modules first, then the two door cables. Board-end hole names match the perfboard soldering guide (printed letter, then number), and the wire colours are the ones in the finished box. Lengths are rough, measured from your photo of the box; dry-fit each cable before you cut it.</p>
 
   <div class="top">
     <section class="panel map" aria-label="Box map">
@@ -209,10 +212,10 @@ button.reset{font:500 .8rem var(--body);padding:5px 10px;border-radius:6px;borde
       <div class="legend" aria-label="Wire colours">
         <span><i class="sw" style="background:var(--w-red)"></i>+5 V</span>
         <span><i class="sw" style="background:var(--w-black)"></i>Ground</span>
-        <span><i class="sw" style="background:var(--w-green)"></i>To module / button 1</span>
-        <span><i class="sw" style="background:var(--w-yellow)"></i>From module / SCL</span>
-        <span><i class="sw" style="background:var(--w-blue)"></i>Relay IN / SDA</span>
-        <span><i class="sw" style="background:var(--w-white)"></i>Button 2</span>
+        <span><i class="sw" style="background:var(--w-white)"></i>Button ground</span>
+        <span><i class="sw" style="background:var(--w-teal)"></i>PZEM RX / button 1</span>
+        <span><i class="sw" style="background:var(--w-blue)"></i>PZEM TX / SDA / button 2</span>
+        <span><i class="sw" style="background:var(--w-yellow)"></i>Relay IN / SCL</span>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:10px;flex-wrap:wrap">
         <span class="mono muted" id="prog"></span>
@@ -226,7 +229,7 @@ button.reset{font:500 .8rem var(--body);padding:5px 10px;border-radius:6px;borde
 <script>
 var H = ''' + data + ''';
 (function(){
-  var COL={red:'var(--w-red)',black:'var(--w-black)',green:'var(--w-green)',yellow:'var(--w-yellow)',blue:'var(--w-blue)',white:'var(--w-white)'};
+  var COL={red:'var(--w-red)',black:'var(--w-black)',teal:'var(--w-teal)',yellow:'var(--w-yellow)',blue:'var(--w-blue)',white:'var(--w-white)'};
   var KEY='ev-harness-v1', st={ticks:{},len:{}};
   try{var s=JSON.parse(localStorage.getItem(KEY)||'null'); if(s&&s.ticks) st=s;}catch(e){}
   function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
