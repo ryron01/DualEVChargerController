@@ -5,20 +5,12 @@ An ESP32 controller that lets two Level 1 EV chargers share one 20 A garage circ
 > [!WARNING]
 > This project switches and measures 120 VAC mains. Build it only if you are qualified to work on mains wiring, keep the AC side in an enclosure, and feed the bench setup from a GFCI-protected circuit. Nothing here is a listed or certified product.
 
-## Status
-
-Bench build working, November 2026. Next step is moving it back into the enclosure.
-
-- The first deployment could not hold a Wi-Fi connection from inside the enclosure. The controller now uses an ESP32 with an external u.FL antenna (WROOM-32U).
-- Both PZEMs now answer on one shared UART, using a Schottky diode-OR on the TX lines and 5 V on the PZEM interface. See [Shared UART](#shared-uart-between-the-two-pzems).
-- The LCD runs through a BSS138 level shifter, so the ESP32's I2C pins stay at 3.3 V.
-
 ## Features
 
 - Two outlets with relay control, exposed to Home Assistant as `Car 1 Switch` and `Car 2 Switch`.
 - Two-layer interlock. Turning one relay on turns the other off, and if both outlets draw more than 0.5 A anyway, relay 2 is cut.
+- The controller keeps working as a pair of interlocked switches if Home Assistant is down or the device can't reach the internet.
 - Per-car status for Home Assistant: `Idle`, `Waiting for Car`, `Charging` or `Done Charging`.
-- No schedule or handoff logic on the device. Those run as Home Assistant automations, so they can change without reflashing. The controller keeps working as a pair of interlocked switches if Home Assistant is down.
 - 16×2 LCD with per-outlet current, charging animation, a done indicator and an interlock warning.
 - Two momentary panel buttons for manual control without Home Assistant. Each press toggles that car's outlet; turning one on turns the other off.
 
@@ -170,9 +162,7 @@ Two earlier attempts failed for reasons worth knowing:
 
 ## PCB schematic
 
-[`hardware/ev-charger-controller.sch`](hardware/ev-charger-controller.sch) is an EAGLE schematic for a carrier board that matches the bench build. The modules (ESP32 DevKitC, PZEMs, relay modules, LCD backpack, level shifter) plug in or connect through headers. The only mains on the board is J1 feeding the HLK-PM01. J1 is fed from the inline 1 A fuse, and the PZEM voltage leads, relay load wiring, outlets and CTs all stay off-board.
-
-![Schematic preview](hardware/schematic-preview.png)
+[`hardware/ev-charger-controller.sch`](hardware/ev-charger-controller.sch) is an for a carrier board that matches the bench build. The modules (ESP32 DevKitC, PZEMs, relay modules, LCD backpack, level shifter) plug in or connect through headers. The only mains on the board is J1 feeding the HLK-PM01. J1 is fed from the inline 1 A fuse, and the PZEM voltage leads, relay load wiring, outlets and CTs all stay off-board.
 
 To open it in Fusion, use **File → Open → Open from my computer** and pick the `.sch` file. It comes in as a new electronics design with its own embedded `evcharger` library.
 
