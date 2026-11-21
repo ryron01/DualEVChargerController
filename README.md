@@ -22,8 +22,6 @@ An interactive version with the pre-power checklist and pin map is in [`docs/ben
 
 ### AC side
 
-![AC-side overview](docs/ac-side-overview.svg)
-
 - **Buses.** The GFCI feed lands on Wago 221 buses for L, N and ground. Feed, buses, relay contacts and outlets carry the charging load, so use 12 AWG to match the 20 A circuit.
 - **Relays.** Each relay's COM takes L from the bus, and its NO contact feeds the outlet. NO keeps the outlets off when the ESP32 reboots or loses power.
 - **CTs.** The CTs are solid-core toroids. Thread each outlet's hot through its CT before landing either end, and run only the hot through it, never L and N together. Keep the CT leads connected to the PZEM whenever load current can flow. The PZEM-004T doesn't report power direction, so CT orientation doesn't change the readings. Wire both channels the same way anyway (red to terminal 3).
