@@ -22,6 +22,7 @@ An interactive version with the pre-power checklist and pin map is in [`docs/ben
 
 ### AC side
 
+- **Breaker.** A 15 A push-button thermal breaker in the feed hot protects the box. Put it between the feed cord and the L bus. It is a panel-mount supplementary protector: it does not replace the 20 A breaker in the panel. Make sure that its label shows an AC rating of 125 V or more. Many push-button breakers have a DC rating only.
 - **Buses.** The GFCI feed lands on Wago 221 buses for L, N and ground. Feed, buses, relay contacts and outlets carry the charging load, so use 12 AWG to match the 20 A circuit.
 - **Relays.** Each relay's COM takes L from the bus, and its NO contact feeds the outlet. NO keeps the outlets off when the ESP32 reboots or loses power.
 - **CTs.** The CTs are solid-core toroids. Thread each outlet's hot through its CT before landing either end, and run only the hot through it, never L and N together. Keep the CT leads connected to the PZEM whenever load current can flow. The PZEM-004T doesn't report power direction, so CT orientation doesn't change the readings. Wire both channels the same way anyway (red to terminal 3).
@@ -230,6 +231,7 @@ Wire colours, as built (the bench diagram and the perfboard guide use the same c
 | 1 | BSS138 bidirectional level shifter, 4-channel | Adafruit 757, SparkFun BOB-12009 or generic; 2 channels used |
 | 2 | 15 A or 20 A receptacle | One per car |
 | 2 | Momentary push button, normally open | Each press toggles that car's outlet |
+| 1 | 15 A push-button thermal breaker, panel mount | Feed hot, before the L bus; AC rated |
 | 1 | Inline fuse holder, 1 A fuse | Protects the HLK-PM01 and both PZEM voltage inputs |
 | 2 | Schottky diode, 1N5819 or similar | PZEM TX diode-OR |
 | 1 | 10 kΩ resistor | Diode-OR pull-up to 3.3 V |
