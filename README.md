@@ -1,6 +1,6 @@
 # Dual EV Charger Controller
 
-An ESP32 controller that lets two Level 1 EV chargers share one 20 A garage circuit. Two relays switch two outlets, and a PZEM-004T energy meter on each outlet reports voltage, current, power, energy and power factor to Home Assistant over ESPHome. An interlock keeps both cars from drawing current at the same time, and a schedule hands charging from car 1 to car 2 overnight.
+An ESP32 controller that lets two Level 1 EV chargers share one 20 A garage circuit. Two relays switch two outlets, and a PZEM-004T energy meter on each outlet reports voltage, current, power, energy and power factor to Home Assistant over ESPHome. Both outlets are on in normal operation. The first car that charges gets priority. If the second car starts to charge, the controller turns off its outlet until the first car is done.
 
 > [!WARNING]
 > This project switches and measures 120 VAC mains. Build it only if you are qualified to work on mains wiring, keep the AC side in an enclosure, and feed the bench setup from a GFCI-protected circuit. Nothing here is a listed or certified product.
@@ -8,11 +8,12 @@ An ESP32 controller that lets two Level 1 EV chargers share one 20 A garage circ
 ## Features
 
 - Two outlets with relay control, exposed to Home Assistant as `Car 1 Switch` and `Car 2 Switch`.
-- Two-layer interlock. Turning one relay on turns the other off, and if both outlets draw more than 0.5 A anyway, relay 2 is cut.
-- The controller keeps working as a pair of interlocked switches if Home Assistant is down or the device can't reach the internet.
-- Per-car status for Home Assistant: `Idle`, `Waiting for Car`, `Charging` or `Done Charging`.
-- 16×2 LCD with per-outlet current, charging animation, a done indicator and an interlock warning.
-- Two momentary panel buttons for manual control without Home Assistant. Each press toggles that car's outlet; turning one on turns the other off.
+- Current interlock. When the total current is more than the limit (15 A), the controller turns off the newer outlet. When the first car is done, it turns that outlet on again.
+- Meter fault protection. If a PZEM stops sending data, the controller keeps only one outlet on.
+- The controller works without Home Assistant and without Wi-Fi. It does not reboot when Wi-Fi or Home Assistant is not available.
+- Per-car status for Home Assistant: `Off`, `Waiting for Car`, `Charging`, `Done Charging` or `On Hold`.
+- 16×2 LCD with per-outlet current and status, and alerts for no Wi-Fi and meter fault.
+- Two momentary panel buttons. A press gives priority to that car (see [Charging logic](#charging-logic)).
 
 ## Bench wiring
 
@@ -230,7 +231,7 @@ Wire colours, as built (the bench diagram and the perfboard guide use the same c
 | 1 | 1602 LCD with PCF8574 I2C backpack | Address 0x27, 5 V |
 | 1 | BSS138 bidirectional level shifter, 4-channel | Adafruit 757, SparkFun BOB-12009 or generic; 2 channels used |
 | 2 | 15 A or 20 A receptacle | One per car |
-| 2 | Momentary push button, normally open | Each press toggles that car's outlet |
+| 2 | Momentary push button, normally open | Gives priority to that car's outlet |
 | 1 | L1-15A thermal breaker, 125/250 VAC, push-button reset | Feed hot, before the L bus |
 | 1 | Inline fuse holder, 1 A fuse | Protects the HLK-PM01 and both PZEM voltage inputs |
 | 2 | Schottky diode, 1N5819 or similar | PZEM TX diode-OR |
@@ -251,20 +252,39 @@ The ESPHome configuration is [`ev-charger.yaml`](ev-charger.yaml). It was built 
    esphome run ev-charger.yaml
    ```
 
+### Charging logic
+
+| Event | Result |
+| --- | --- |
+| Boot | Outlet 1 turns on. Outlet 2 turns on 60 s later. Wi-Fi starts 5 s after boot. |
+| A car draws more than the charging threshold (1 A) | That outlet gets priority, if no outlet has priority. |
+| Total current is more than the current limit (15 A) | The outlet without priority turns off and goes on hold. If neither outlet has priority, outlet 1 keeps it. |
+| The priority car is below the charging threshold for the done delay (10 min) | The outlet on hold turns on again. |
+| Panel button press | That outlet turns on and gets priority. The other outlet turns off and goes on hold. |
+| Same button pressed again while the other outlet is on hold | The other outlet turns on again. |
+| A button-selected car does not start to charge before the button timeout (30 min) | The outlet on hold turns on again. |
+| A PZEM does not send data for 10 s | One outlet turns off. It turns on again when both PZEMs send data. |
+| A switch is turned on in Home Assistant | The hold on that outlet is cancelled. The current interlock stays active. |
+
+The PZEMs are read every 1 s, so the interlock operates in 1–2 s. The 15 A feed breaker is the backstop. The current limit, charging threshold, done delay and button timeout are `number` entities in Home Assistant. You can change them without a reflash.
+
+To test the interlock without cars, set the current limit to a low value and the charging threshold below the load. Use two small loads, for example two lamps. Set the values back after the test.
+
 ## Home Assistant automations
 
-Scheduling and handoff between cars are left to Home Assistant. The device exposes what automations need:
+The device does the handoff between cars. Use Home Assistant for alerts and other automations. The device exposes these entities:
 
 | Entity | Use |
 | --- | --- |
-| `switch.ev_charger_controller_car_1_switch`, `switch.ev_charger_controller_car_2_switch` | Turn an outlet on or off. Turning one on turns the other off. |
-| `sensor.ev_charger_controller_car_1_status`, `sensor.ev_charger_controller_car_2_status` | `Idle`, `Waiting for Car`, `Charging` or `Done Charging` |
+| `switch.ev_charger_controller_car_1_switch`, `switch.ev_charger_controller_car_2_switch` | Turn an outlet on or off. Both can be on. |
+| `sensor.ev_charger_controller_car_1_status`, `sensor.ev_charger_controller_car_2_status` | `Off`, `Waiting for Car`, `Charging`, `Done Charging` or `On Hold` |
+| `sensor.ev_charger_controller_interlock_status` | Which car has priority, and which outlet is on hold |
 | `sensor.ev_charger_controller_car_1_current`, `sensor.ev_charger_controller_car_2_current` | Per-outlet current, plus voltage, power, energy and power factor |
-| `binary_sensor.ev_charger_controller_simultaneous_charge_detected` | Interlock tripped |
+| `binary_sensor.ev_charger_controller_meter_fault` | A PZEM does not send data |
 
 Entity IDs depend on how the device was named when it was added, so check them in Home Assistant.
 
-For a handoff, trigger on the active car's status changing to `Done Charging`, not on low current. An outlet only reaches `Done Charging` after its car has drawn current since the relay turned on, so an empty outlet stays at `Waiting for Car` and can't bounce the relays back and forth.
+Current values go to Home Assistant every 10 s. The interlock uses the 1 s values on the device.
 
 ## PZEM tools
 

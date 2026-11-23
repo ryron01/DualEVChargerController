@@ -57,7 +57,7 @@ HARNESSES = [
         "map": "relay1",
         "pins": [("DC+", "DC+", RED, "+5 V coil supply"), ("DC-", "DC-", BLK, "Ground"), ("IN", "IN", YEL, "ESP32 GPIO25")],
         "notes": ["Same reversed order as relay 2: match by name.", "Relay module trigger jumper on H."],
-        "test": "Turn on Car 1 Switch in Home Assistant: IN reads about 3.3 V to DC−, and the relay clicks. Relay 2 should drop out.",
+        "test": "Turn on Car 1 Switch in Home Assistant: IN reads about 3.3 V to DC−, and the relay clicks.",
     },
     {
         "id": "lcd", "name": "LCD", "wires": 4, "board": "J4", "edge": "left edge",

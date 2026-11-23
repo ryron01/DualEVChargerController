@@ -1,6 +1,23 @@
 esphome:
   name: ev-charger
   friendly_name: EV Charger Controller
+  on_boot:
+    # Start Wi-Fi 5 s after boot.
+    - priority: -100
+      then:
+        - delay: 5s
+        - wifi.enable:
+    # Turn on outlet 1 first. Turn on outlet 2 60 s later, so that the two cars
+    # do not start to charge at the same time after a power outage.
+    - priority: -100
+      then:
+        - switch.turn_on: relay1
+        - delay: 60s
+        - if:
+            condition:
+              lambda: 'return id(held) != 2 && !id(relay2).state;'
+            then:
+              - switch.turn_on: relay2
 
 esp32:
   board: esp32dev
@@ -12,6 +29,8 @@ logger:
 api:
   encryption:
     key: !secret api_key
+  # Do not reboot when Home Assistant is not connected. A reboot turns off both relays.
+  reboot_timeout: 0s
 
 ota:
   - platform: esphome
@@ -20,9 +39,67 @@ ota:
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+  # Wi-Fi starts from on_boot, after a 5 s delay.
+  enable_on_boot: false
+  # Do not reboot when Wi-Fi is not available. The charger works without Wi-Fi.
+  reboot_timeout: 0s
   ap:
     ssid: "EV-Charger Fallback"
     password: !secret fallback_password
+
+# ── SETTINGS (adjustable in Home Assistant) ──────────────────────────
+number:
+  - platform: template
+    name: "Current Limit"
+    id: current_limit
+    icon: mdi:current-ac
+    unit_of_measurement: A
+    entity_category: config
+    min_value: 0.5
+    max_value: 20
+    step: 0.5
+    initial_value: 15
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Charging Threshold"
+    id: draw_threshold
+    icon: mdi:current-ac
+    unit_of_measurement: A
+    entity_category: config
+    min_value: 0.1
+    max_value: 5
+    step: 0.1
+    initial_value: 1
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Done Delay"
+    id: done_minutes
+    icon: mdi:timer-outline
+    unit_of_measurement: min
+    entity_category: config
+    min_value: 1
+    max_value: 60
+    step: 1
+    initial_value: 10
+    optimistic: true
+    restore_value: true
+
+  - platform: template
+    name: "Button Timeout"
+    id: button_timeout_minutes
+    icon: mdi:timer-outline
+    unit_of_measurement: min
+    entity_category: config
+    min_value: 5
+    max_value: 240
+    step: 5
+    initial_value: 30
+    optimistic: true
+    restore_value: true
 
 # ── DISPLAY ──────────────────────────────────────────────────────────
 i2c:
@@ -54,80 +131,225 @@ display:
         data: [0x00, 0x00, 0x01, 0x03, 0x16, 0x1C, 0x08, 0x00]  # \x07 checkmark
 
     lambda: |-
-      uint32_t phase = (millis() / 300) % 5;
-
-      // Cycle through chg1-chg4 (positions 1-4 = \x01-\x04); phase 4 repeats chg1
-      const char* chg;
-      switch(phase) {
-        case 0: chg = "\x01"; break;  // chg1
-        case 1: chg = "\x02"; break;  // chg2
-        case 2: chg = "\x03"; break;  // chg3
-        case 3: chg = "\x04"; break;  // chg4
-        default: chg = "\x01"; break;
+      const uint32_t now = millis();
+      // Alerts show every other 2 s, in turn with the outlet status.
+      const bool alert_turn = (now / 2000) % 2;
+      if (alert_turn && id(meter_fault)) {
+        it.print(0, 0, "\x06 METER FAULT   ");
+        it.print(0, 1, "One outlet only ");
+        return;
+      }
+      if (alert_turn && now > 20000 && !wifi::global_wifi_component->is_connected()) {
+        it.print(0, 0, "\x06 NO WIFI       ");
+        it.print(0, 1, "Local mode only ");
+        return;
       }
 
-      // Interlock fault — highest priority
-      if (id(outlet1_current).state > 0.5 &&
-          id(outlet2_current).state > 0.5) {
-        if (phase < 3) {
-          it.printf(0, 0, "\x06 LOCKED        ");
-          it.printf(0, 1, "SIMULTANEOUS CHG");
-        } else {
-          it.printf(0, 0, "                ");
-          it.printf(0, 1, "                ");
-        }
+      // Charging animation: chg1 to chg4 (\x01 to \x04).
+      static const char *const frames[] = {"\x01", "\x02", "\x03", "\x04"};
+      const char *chg = frames[(now / 300) % 4];
 
-      // Car 1 charging
-      } else if (id(relay1).state && id(outlet1_pf)->state && outlet1_pf->state > .3 && id(outlet1_current).state > .5) {
-        it.printf(0, 0, "\x08""1:%4.1fA %s CHRG",
-          id(outlet1_current).state, chg);
-        it.printf(0, 1, "\x08""2:%4.1fA OFF   ",
-          id(outlet2_current).state);
-
-      // Car 2 charging
-      } else if (id(relay2).state && id(outlet2_pf)->state && outlet2_pf->state > .3 && id(outlet2_current).state > .5) {
-        it.printf(0, 0, "\x08""1:%4.1fA OFF   ",
-          id(outlet1_current).state);
-        it.printf(0, 1, "\x08""2:%4.1fA %s CHRG",
-          id(outlet2_current).state, chg);
-      
-      // Car 1 done charging
-      } else if (id(outlet1_pf)->state && outlet1_pf->state < .3 && id(outlet1_current).state < 2) {
-        it.printf(0, 0, "\x08""1:%4.1fA \x07    ",
-          id(outlet1_current).state);
-        it.printf(0, 1, "\x08""2:%4.1fA OFF   ",
-          id(outlet2_current).state);
-      
-      // Car 2 done charging
-      } else if (id(outlet2_pf)->state && outlet2_pf->state < .3 && id(outlet2_current).state < 2) {
-        it.printf(0, 0, "\x08""1:%4.1fA OFF   ",
-          id(outlet1_current).state);
-        it.printf(0, 1, "\x08""2:%4.1fA \x07    ",
-          id(outlet2_current).state);
-
-      // Neither charging — show relay state
-      } else {
-        it.printf(0, 0, "\x08""1:%4.1fA %s",
-          id(outlet1_current).state,
-          id(relay1).state ? "ON     " : "OFF    ");
-        it.printf(0, 1, "\x08""2:%4.1fA %s",
-          id(outlet2_current).state,
-          id(relay2).state ? "ON     " : "OFF    ");
+      for (int n = 1; n <= 2; n++) {
+        float a = n == 1 ? id(i1) : id(i2);
+        if (std::isnan(a)) a = 0;
+        const bool on = n == 1 ? id(relay1).state : id(relay2).state;
+        const bool done = n == 1 ? id(car1_has_charged) : id(car2_has_charged);
+        char st[8];
+        if (id(held) == n)                         snprintf(st, sizeof(st), "HOLD   ");
+        else if (!on)                              snprintf(st, sizeof(st), "OFF    ");
+        else if (a > id(draw_threshold).state)     snprintf(st, sizeof(st), "CHRG %s ", chg);
+        else if (done)                             snprintf(st, sizeof(st), "\x07 DONE ");
+        else                                       snprintf(st, sizeof(st), "READY  ");
+        it.printf(0, n - 1, "\x08%d:%4.1fA %s", n, a, st);
       }
 
-# ── CHARGE TRACKING ──────────────────────────────────────────────────
-# Set when an outlet draws charging current while its relay is on, and
-# cleared each time the relay turns on. Lets the status sensors tell
-# "waiting for the car to start" apart from "car finished".
+# ── STATE ────────────────────────────────────────────────────────────
 globals:
+  # Latest current of each outlet, at the full poll rate (1 s).
+  - id: i1
+    type: float
+    initial_value: 'NAN'
+  - id: i2
+    type: float
+    initial_value: 'NAN'
+  # Time (ms) of the latest reading from each PZEM. 0 = no reading yet.
+  - id: last1
+    type: uint32_t
+    initial_value: '0'
+  - id: last2
+    type: uint32_t
+    initial_value: '0'
+  # Outlet that has priority: the first to draw current, or the one selected
+  # with its panel button. 0 = none.
+  - id: active
+    type: int
+    initial_value: '0'
+  - id: active_since
+    type: uint32_t
+    initial_value: '0'
+  - id: last_draw
+    type: uint32_t
+    initial_value: '0'
+  # True when the active outlet drew current after it became active.
+  - id: drew
+    type: bool
+    initial_value: 'false'
+  # Outlet that the firmware turned off. 0 = none.
+  - id: held
+    type: int
+    initial_value: '0'
+  # Why it is off: 1 = over current limit, 2 = panel button, 3 = meter fault.
+  - id: hold_reason
+    type: int
+    initial_value: '0'
+  - id: meter_fault
+    type: bool
+    initial_value: 'false'
+  # Set when the outlet draws current. Cleared when its relay turns on.
   - id: car1_has_charged
     type: bool
-    restore_value: no
     initial_value: 'false'
   - id: car2_has_charged
     type: bool
-    restore_value: no
     initial_value: 'false'
+
+# ── INTERLOCK ────────────────────────────────────────────────────────
+# Normal operation: both relays are on. The first outlet that draws current
+# gets priority. If the total current goes above the limit, the firmware
+# turns off the newer outlet. When the priority car is done, the firmware
+# turns the other outlet on again. The 15 A feed breaker is the backstop.
+script:
+  - id: evaluate
+    then:
+      - lambda: |-
+          const uint32_t now = millis();
+          const float on_a = id(draw_threshold).state;
+          const uint32_t done_ms = (uint32_t) id(done_minutes).state * 60000UL;
+          const uint32_t timeout_ms = (uint32_t) id(button_timeout_minutes).state * 60000UL;
+          auto rly = [&](int n) { return n == 1 ? id(relay1) : id(relay2); };
+          auto amps = [&](int n) { return n == 1 ? id(i1) : id(i2); };
+          auto fresh = [&](int n) {
+            const uint32_t t = n == 1 ? id(last1) : id(last2);
+            return t != 0 && now - t < 10000 && !std::isnan(amps(n));
+          };
+          auto hold = [&](int n, int reason) {
+            id(held) = n;
+            id(hold_reason) = reason;
+            rly(n)->turn_off();
+          };
+          auto release = [&]() {
+            const int h = id(held);
+            id(held) = 0;
+            id(hold_reason) = 0;
+            id(active) = 0;
+            if (h != 0) rly(h)->turn_on();
+          };
+
+          // 1. Meter fault: without good data, keep only one outlet on.
+          id(meter_fault) = !fresh(1) || !fresh(2);
+          if (id(meter_fault)) {
+            if (id(relay1).state && id(relay2).state) {
+              const int cut = id(active) == 2 ? 1 : 2;
+              hold(cut, 3);
+              ESP_LOGW("interlock", "Meter fault: outlet %d off", cut);
+            }
+            return;
+          }
+          if (id(hold_reason) == 3) {
+            ESP_LOGI("interlock", "Meters OK: outlet %d on", id(held));
+            release();
+            return;
+          }
+
+          const float a1 = amps(1), a2 = amps(2);
+
+          // 2. No active outlet: the first outlet that draws current becomes active.
+          if (id(active) == 0) {
+            int n = 0;
+            if (id(relay1).state && a1 > on_a) n = 1;
+            else if (id(relay2).state && a2 > on_a) n = 2;
+            if (n != 0) {
+              id(active) = n;
+              id(active_since) = now;
+              id(last_draw) = now;
+              id(drew) = true;
+            }
+          }
+
+          // 3. Over the limit: turn off the newer outlet. Outlet 1 wins a tie.
+          if (id(relay1).state && id(relay2).state && a1 + a2 > id(current_limit).state) {
+            const int keep = id(active) == 2 ? 2 : 1;
+            if (id(active) != keep) {
+              id(active) = keep;
+              id(active_since) = now;
+              id(last_draw) = now;
+              id(drew) = true;
+            }
+            hold(3 - keep, 1);
+            ESP_LOGW("interlock", "Total %.1f A over limit: outlet %d off", a1 + a2, 3 - keep);
+            return;
+          }
+
+          // 4. Track when the active outlet last drew current.
+          const int n = id(active);
+          if (n != 0 && amps(n) > on_a) {
+            id(last_draw) = now;
+            id(drew) = true;
+          }
+
+          // 5. Turn the outlet on hold on again when the active outlet is done,
+          //    turned off, or did not start before the button timeout.
+          if (id(held) != 0) {
+            bool go = false;
+            if (n == 0 || !rly(n)->state) go = true;
+            else if (id(drew)) go = now - id(last_draw) >= done_ms;
+            else go = now - id(active_since) >= timeout_ms;
+            if (go) {
+              if (n == 0 || !rly(n)->state) ESP_LOGI("interlock", "Priority outlet off: outlet %d on", id(held));
+              else ESP_LOGI("interlock", "Outlet %d done: outlet %d on", n, id(held));
+              release();
+            }
+            return;
+          }
+
+          // 6. Nothing on hold: clear the active outlet when its car is done.
+          if (n != 0) {
+            const bool idle = id(drew) ? now - id(last_draw) >= done_ms
+                                       : now - id(active_since) >= timeout_ms;
+            if (idle) id(active) = 0;
+          }
+
+  # Panel button: turn this outlet on and the other outlet off. A second press,
+  # when the other outlet is on hold, turns the other outlet on again.
+  - id: button_press
+    parameters:
+      n: int
+    then:
+      - lambda: |-
+          const int o = 3 - n;
+          auto rly = [&](int k) { return k == 1 ? id(relay1) : id(relay2); };
+          if (id(held) == o && rly(n)->state) {
+            ESP_LOGI("interlock", "Button %d again: outlet %d on", n, o);
+            id(held) = 0;
+            id(hold_reason) = 0;
+            rly(o)->turn_on();
+            return;
+          }
+          const float a = n == 1 ? id(i1) : id(i2);
+          id(active) = n;
+          id(active_since) = millis();
+          id(last_draw) = millis();
+          id(drew) = !std::isnan(a) && a > id(draw_threshold).state;
+          id(held) = o;
+          id(hold_reason) = 2;
+          rly(o)->turn_off();
+          rly(n)->turn_on();
+          ESP_LOGI("interlock", "Button %d: outlet %d on, outlet %d off", n, n, o);
+
+interval:
+  - interval: 1s
+    then:
+      - script.execute: evaluate
 
 # ── UART + PZEM ──────────────────────────────────────────────────────
 uart:
@@ -141,105 +363,133 @@ modbus:
   uart_id: pzem_uart
   id: mod_bus
 
+# The PZEMs are read every 1 s for the interlock. Values go to Home Assistant
+# every 10 s only, to keep the database small.
 sensor:
   - platform: pzemac
     modbus_id: mod_bus
     address: 1
-    update_interval: 10s
+    update_interval: 1s
     current:
       name: "Car 1 Current"
       id: outlet1_current
-      on_value:
+      filters:
+        - throttle: 10s
+      on_raw_value:
         then:
           - lambda: |-
-              if (id(relay1).state && x > 0.5) id(car1_has_charged) = true;
+              id(i1) = x;
+              id(last1) = millis();
+              if (id(relay1).state && x > id(draw_threshold).state) id(car1_has_charged) = true;
+          - script.execute: evaluate
     voltage:
       name: "Car 1 Voltage"
+      filters:
+        - throttle: 10s
     power:
       name: "Car 1 Power"
+      filters:
+        - throttle: 10s
     energy:
       name: "Car 1 Energy"
+      filters:
+        - throttle: 10s
     frequency:
       name: "Car 1 Frequency"
+      filters:
+        - throttle: 10s
     power_factor:
       name: "Car 1 Power Factor"
-      id: outlet1_pf
+      filters:
+        - throttle: 10s
 
   - platform: pzemac
     modbus_id: mod_bus
     address: 2
-    update_interval: 10s
+    update_interval: 1s
     current:
       name: "Car 2 Current"
       id: outlet2_current
-      on_value:
+      filters:
+        - throttle: 10s
+      on_raw_value:
         then:
           - lambda: |-
-              if (id(relay2).state && x > 0.5) id(car2_has_charged) = true;
+              id(i2) = x;
+              id(last2) = millis();
+              if (id(relay2).state && x > id(draw_threshold).state) id(car2_has_charged) = true;
+          - script.execute: evaluate
     voltage:
       name: "Car 2 Voltage"
+      filters:
+        - throttle: 10s
     power:
       name: "Car 2 Power"
+      filters:
+        - throttle: 10s
     energy:
       name: "Car 2 Energy"
+      filters:
+        - throttle: 10s
     frequency:
       name: "Car 2 Frequency"
+      filters:
+        - throttle: 10s
     power_factor:
       name: "Car 2 Power Factor"
-      id: outlet2_pf
+      filters:
+        - throttle: 10s
 
-# ── TEXT SENSORS ──────────────────────────────────────────────────────
+# ── STATUS ───────────────────────────────────────────────────────────
 text_sensor:
   - platform: template
     name: "Car 1 Status"
-    id: outlet1_status
     lambda: |-
-      if (id(relay1).state && id(outlet1_current).state > 0.5)
-        return {"Charging"};
-      else if (id(relay1).state && id(car1_has_charged))
-        return {"Done Charging"};
-      else if (id(relay1).state)
-        return {"Waiting for Car"};
-      else
-        return {"Idle"};
-    update_interval: 10s
+      if (id(held) == 1)
+        return {id(hold_reason) == 1 ? "On Hold - Car 2 Charging"
+              : id(hold_reason) == 2 ? "Off - Car 2 Selected" : "Off - Meter Fault"};
+      if (!id(relay1).state) return {"Off"};
+      if (!std::isnan(id(i1)) && id(i1) > id(draw_threshold).state) return {"Charging"};
+      if (id(car1_has_charged)) return {"Done Charging"};
+      return {"Waiting for Car"};
+    update_interval: 5s
 
   - platform: template
     name: "Car 2 Status"
-    id: outlet2_status
     lambda: |-
-      if (id(relay2).state && id(outlet2_current).state > 0.5)
-        return {"Charging"};
-      else if (id(relay2).state && id(car2_has_charged))
-        return {"Done Charging"};
-      else if (id(relay2).state)
-        return {"Waiting for Car"};
-      else
-        return {"Idle"};
-    update_interval: 10s
+      if (id(held) == 2)
+        return {id(hold_reason) == 1 ? "On Hold - Car 1 Charging"
+              : id(hold_reason) == 2 ? "Off - Car 1 Selected" : "Off - Meter Fault"};
+      if (!id(relay2).state) return {"Off"};
+      if (!std::isnan(id(i2)) && id(i2) > id(draw_threshold).state) return {"Charging"};
+      if (id(car2_has_charged)) return {"Done Charging"};
+      return {"Waiting for Car"};
+    update_interval: 5s
 
   - platform: template
     name: "Interlock Status"
     lambda: |-
-      if (id(outlet1_current).state > 0.5 && id(outlet2_current).state > 0.5)
-        return {"Locked - Simultaneous Draw"};
-      else
-        return {"OK"};
+      if (id(meter_fault)) return {"Meter Fault"};
+      if (id(held) != 0) {
+        char buf[40];
+        snprintf(buf, sizeof(buf), "Car %d Priority, Car %d On Hold", 3 - id(held), id(held));
+        return {buf};
+      }
+      if (id(active) != 0) {
+        char buf[24];
+        snprintf(buf, sizeof(buf), "Car %d Priority", id(active));
+        return {buf};
+      }
+      return {"OK"};
     update_interval: 5s
 
-
-# ── BINARY SENSORS ────────────────────────────────────────────────────
 binary_sensor:
   - platform: template
-    name: "Simultaneous Charge Detected"
-    id: interlock_fault
-    lambda: |-
-      return id(outlet1_current).state > 0.5 &&
-             id(outlet2_current).state > 0.5;
+    name: "Meter Fault"
     device_class: problem
+    lambda: 'return id(meter_fault);'
 
-  # Momentary button to GND: each press toggles car 1's outlet. Turning it on
-  # turns car 2's off through the relay interlock below.
+  # Momentary button to GND. See script button_press.
   - platform: gpio
     pin:
       number: GPIO32
@@ -251,10 +501,10 @@ binary_sensor:
       - delayed_on: 30ms
       - delayed_off: 30ms
     on_press:
-      - switch.toggle: relay1
+      - script.execute:
+          id: button_press
+          n: 1
 
-  # Momentary button to GND: each press toggles car 2's outlet. Turning it on
-  # turns car 1's off through the relay interlock below.
   - platform: gpio
     pin:
       number: GPIO33
@@ -266,9 +516,13 @@ binary_sensor:
       - delayed_on: 30ms
       - delayed_off: 30ms
     on_press:
-      - switch.toggle: relay2
+      - script.execute:
+          id: button_press
+          n: 2
 
 # ── RELAYS ────────────────────────────────────────────────────────────
+# Both relays can be on at the same time. The interlock script controls the
+# load. A switch turned on from Home Assistant cancels a hold on that outlet.
 switch:
   - platform: gpio
     pin:
@@ -278,9 +532,11 @@ switch:
     id: relay1
     restore_mode: ALWAYS_OFF
     on_turn_on:
-      # Layer 1 interlock: relay 1 on forces relay 2 off
-      - switch.turn_off: relay2
-      - lambda: 'id(car1_has_charged) = false;'
+      - lambda: |-
+          id(car1_has_charged) = false;
+          if (id(held) == 1) { id(held) = 0; id(hold_reason) = 0; }
+    on_turn_off:
+      - lambda: 'if (id(held) != 1 && id(active) == 1) id(active) = 0;'
 
   - platform: gpio
     pin:
@@ -290,25 +546,8 @@ switch:
     id: relay2
     restore_mode: ALWAYS_OFF
     on_turn_on:
-      # Layer 1 interlock: relay 2 on forces relay 1 off
-      - switch.turn_off: relay1
-      - lambda: 'id(car2_has_charged) = false;'
-
-# ── INTERLOCK ─────────────────────────────────────────────────────────
-# Scheduling and handoff between cars live in Home Assistant automations,
-# so they can change without reflashing. Safety interlocks stay on the device.
-interval:
-  - interval: 5s
-    then:
-      # Layer 2 interlock — current-sense simultaneous draw detection
-      - if:
-          condition:
-            lambda: |-
-              return id(outlet1_current).state > 0.5 &&
-                     id(outlet2_current).state > 0.5;
-          then:
-            - switch.turn_off: relay2
-            - logger.log:
-                level: WARN
-                format: "Simultaneous draw detected (C1:%.1fA C2:%.1fA) — cut relay 2"
-                args: ['id(outlet1_current).state', 'id(outlet2_current).state']
+      - lambda: |-
+          id(car2_has_charged) = false;
+          if (id(held) == 2) { id(held) = 0; id(hold_reason) = 0; }
+    on_turn_off:
+      - lambda: 'if (id(held) != 2 && id(active) == 2) id(active) = 0;'
