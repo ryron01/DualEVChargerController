@@ -119,6 +119,14 @@ def fuse(x, y, w, h):
     text(x+w-10, y+h/2+4, "fuse", "csub", "end", fill="#c7ccd2")
 
 
+def breaker(cx, y1, y2):
+    """Panel-mount push-button breaker drawn on a vertical hot wire at x = cx."""
+    out.append(f'<rect x="{cx-9}" y="{y1}" width="18" height="{y2-y1}" rx="4" fill="#26292e" stroke="#000" stroke-width="1"/>')
+    out.append(f'<circle cx="{cx}" cy="{(y1+y2)/2}" r="5" fill="#cfd8dc" stroke="#7b868c"/>')
+    text(cx+18, (y1+y2)/2-2, "15 A breaker", "lbl")
+    text(cx+18, (y1+y2)/2+12, "push to reset", "csub", fill="#5a574d")
+
+
 def relay(x, y, w, h, name):
     pcb(x, y, w, h)
     holes(x, y, w, h)
@@ -291,6 +299,7 @@ text(1258, 634, "120 VAC side", "zone", "end")
 text(1258, 658, "Low-voltage side", "zone", "end")
 
 feed(80, 40, 150, 80)
+breaker(60, 122, 158)
 wago(80, 160, 150, 40, 5, "L bus", "Wago 221-415")
 fuse(80, 225, 150, 34)
 wago(80, 285, 150, 40, 5, "L tap", "Wago 221-415")
@@ -431,7 +440,7 @@ out.append('<rect x="752" y="926" width="0" height="0"/>')
 
 svg = f'''<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dt dd">%%STYLE%%
 <title id="dt">Dual PZEM EV charger bench wiring</title>
-<desc id="dd">120 VAC feed into Wago L, N and ground buses; each relay switches its outlet hot, which passes through a solid-core CT; both PZEM-004T V4 modules take fused L and N on terminals 1 and 2 and CT leads on 3 and 4; low-voltage side runs on breadboard rails from an HLK-PM01, with both PZEMs sharing one UART to the ESP32 through a Schottky diode-OR on TX and an I2C LCD behind a 3.3 V to 5 V level shifter.</desc>
+<desc id="dd">120 VAC feed, hot through a 15 A breaker, into Wago L, N and ground buses; each relay switches its outlet hot, which passes through a solid-core CT; both PZEM-004T V4 modules take fused L and N on terminals 1 and 2 and CT leads on 3 and 4; low-voltage side runs on breadboard rails from an HLK-PM01, with both PZEMs sharing one UART to the ESP32 through a Schottky diode-OR on TX and an I2C LCD behind a 3.3 V to 5 V level shifter.</desc>
 {''.join(out[:1])}
 {''.join(wires_svg)}
 {''.join(out[1:])}
@@ -441,7 +450,7 @@ svg = f'''<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="im
 # components should sit above wires (wires end at their edges); re-order: wires first then components then dots
 svg = f'''<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="dt dd">%%STYLE%%
 <title id="dt">Dual PZEM EV charger bench wiring</title>
-<desc id="dd">120 VAC feed into Wago L, N and ground buses; each relay switches its outlet hot, which passes through a solid-core CT; both PZEM-004T V4 modules take fused L and N on terminals 1 and 2 and CT leads on 3 and 4; low-voltage side runs on breadboard rails from an HLK-PM01, with both PZEMs sharing one UART to the ESP32 through a Schottky diode-OR on TX and an I2C LCD behind a 3.3 V to 5 V level shifter.</desc>
+<desc id="dd">120 VAC feed, hot through a 15 A breaker, into Wago L, N and ground buses; each relay switches its outlet hot, which passes through a solid-core CT; both PZEM-004T V4 modules take fused L and N on terminals 1 and 2 and CT leads on 3 and 4; low-voltage side runs on breadboard rails from an HLK-PM01, with both PZEMs sharing one UART to the ESP32 through a Schottky diode-OR on TX and an I2C LCD behind a 3.3 V to 5 V level shifter.</desc>
 <g class="comp-under">{''.join(o for o in out if 'class="bb"' in o or 'class="iso"' in o)}</g>
 <g class="wires">{''.join(wires_svg)}</g>
 <g class="comps">{''.join(o for o in out if 'class="bb"' not in o and 'class="iso"' not in o)}</g>
